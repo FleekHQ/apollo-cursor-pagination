@@ -1,4 +1,4 @@
-import paginate from 'apollo-cursor-pagination/orm-implementations/knex';
+import paginate from 'apollo-cursor-pagination/orm-connectors/knex';
 import Cat from '../../../models/Cat';
 
 export default async (_, args) => {
