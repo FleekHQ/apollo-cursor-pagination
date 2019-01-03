@@ -1,13 +1,13 @@
 {
-  "name": "api-gateway",
+  "name": "test-app",
   "version": "0.1.0",
-  "description": "Gate of entry to all the other services in the back-end. Should be built mostly using GraphQL.",
+  "description": "App made to test apollo-cursor-pagination lib",
   "main": "index.js",
   "author": "Daniel Merrill",
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "apollo-cursor-pagination": "file:../../src",
+    "apollo-cursor-pagination": "file:../../dist",
     "apollo-link-http": "^1.5.5",
     "apollo-server": "^2.1.0",
     "glob": "^7.1.3",
