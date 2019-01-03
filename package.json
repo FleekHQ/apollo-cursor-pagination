@@ -1,0 +1,29 @@
+{
+  "name": "apollo-cursor-pagination",
+  "version": "0.1.0",
+  "description": "Relay's Connection implementation for Apollo Server GraphQL library",
+  "main": "index.js",
+  "repository": "https://github.com/Terminal-Systems/apollo-cursor-pagination",
+  "author": "Daniel Merrill <daniel@terminal.co>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "base-64": "^0.1.0"
+  },
+  "scripts": {
+    "build": "babel src --out-dir dist"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2",
+    "@babel/node": "^7.0.0",
+    "@babel/preset-env": "^7.1.0",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-jest": "^23.6.0",
+    "eslint": "^5.6.1",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jest": "^21.25.0",
+    "regenerator-runtime": "^0.12.1"
+  }
+}
