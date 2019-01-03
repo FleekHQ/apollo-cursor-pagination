@@ -53,6 +53,16 @@ Pull requests are welcome, specially to implement new connectors for different O
 
 When submitting a pull request, please include tests for the code you are submitting, and check that you did not break any working test.
 
+### Testing and publishing changes
+
+1- Code your changes
+
+2- Run `yarn build`. This will generate a `dist` folder with the distributable files
+
+3- `cd` into the test app and run `yarn install` and then `yarn test`. Check that all tests pass.
+
+4- Send the PR. When accepted, the maintainer will publish a new version to npm using the new `dist` folder.
+
 ### Running the test suite
 
 1- `cd tests/test-app`
