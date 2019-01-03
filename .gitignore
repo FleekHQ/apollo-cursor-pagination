@@ -1,0 +1,16 @@
+# OSX trash
+.DS_Store
+
+# Node packages
+node_modules/
+**/node_modules/
+
+# Local testing databases
+*.sqlite3
+**/*.sqlite3
+
+# Lint cache
+.eslintcache
+
+# Logs
+yarn-error.log
