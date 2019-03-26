@@ -55,6 +55,11 @@ const getNodesLength = async (nodesAccessor) => {
   return result.length;
 };
 
+const orderNodesBy = (nodesAccessor, orderColumn = 'id', ascOrDesc = 'asc') => {
+  const result = nodesAccessor.clone().orderBy(orderColumn, ascOrDesc).orderBy('id', ascOrDesc);
+  return result;
+};
+
 // Receives a list of nodes and returns it in edge form:
 // {
 //   cursor
@@ -78,6 +83,7 @@ const paginate = apolloCursorPaginationBuilder(
     removeNodesFromEnd,
     removeNodesFromBeginning: notImplemented,
     convertNodesToEdges,
+    orderNodesBy,
   },
 );
 

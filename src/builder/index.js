@@ -42,6 +42,7 @@ const nodesToReturn = async (
     getNodesLength,
     removeNodesFromEnd,
     removeNodesFromBeginning,
+    orderNodesBy,
   },
   {
     before, after, first, last,
@@ -49,8 +50,9 @@ const nodesToReturn = async (
     orderColumn, ascOrDesc,
   },
 ) => {
+  const orderedNodesAccessor = orderNodesBy(allNodesAccessor, orderColumn, ascOrDesc);
   let nodesAccessor = applyCursorsToNodes(
-    allNodesAccessor,
+    orderedNodesAccessor,
     { before, after },
     {
       removeNodesBeforeAndIncluding,
@@ -62,11 +64,11 @@ const nodesToReturn = async (
 
   const length = await getNodesLength(nodesAccessor);
   if (first !== undefined) {
-    if (first < 0) throw new Error('`first` argument must can not be less than 0');
+    if (first < 0) throw new Error('`first` argument must not be less than 0');
     if (length > first) nodesAccessor = removeNodesFromEnd(nodesAccessor, first, length);
   }
   if (last !== undefined) {
-    if (last < 0) throw new Error('`last` argument must can not be less than 0');
+    if (last < 0) throw new Error('`last` argument must not be less than 0');
     if (length > last) nodesAccessor = removeNodesFromBeginning(nodesAccessor, last, length);
   }
 
@@ -129,6 +131,23 @@ const hasNextPage = async (allNodesAccessor,
   return false;
 };
 
+const totalCount = async (allNodesAccessor,
+  {
+    removeNodesBeforeAndIncluding,
+    removeNodesAfterAndIncluding,
+    getNodesLength,
+  }, {
+    before, after,
+  }, {
+    orderColumn, ascOrDesc,
+  }) => {
+  const nodes = applyCursorsToNodes(allNodesAccessor, { before, after }, {
+    removeNodesBeforeAndIncluding, removeNodesAfterAndIncluding,
+  }, { orderColumn, ascOrDesc });
+  const length = await getNodesLength(nodes);
+  return length;
+};
+
 /**
  * Returns a function that must be called to generate a Relay's Connection based page.
  * @param {Object} operatorFunctions must contain `getNodesLength`, `removeNodesFromEnd`, `removeNodesFromBeginning`,`removeNodesBeforeAndIncluding` and `removeNodesAfterAndIncluding` functions.
@@ -140,15 +159,24 @@ const apolloCursorPaginationBuilder = ({
   removeNodesFromEnd,
   removeNodesFromBeginning,
   convertNodesToEdges,
+  orderNodesBy,
 }) => async (
   allNodesAccessor,
   {
-    before, after, first, last,
+    before, after, first, last, orderBy = 'id', orderDirection = 'asc',
   },
-  {
-    orderColumn, ascOrDesc = 'asc',
-  },
+  opts = {},
 ) => {
+  let {
+    orderColumn, ascOrDesc,
+  } = opts;
+  if (orderColumn) {
+    console.warn('"orderColumn" and "ascOrDesc" are being deprecated in favor of "orderBy" and "orderDirection" respectively');
+  }
+
+  orderColumn = orderBy;
+  ascOrDesc = orderDirection;
+
   const nodes = await nodesToReturn(
     allNodesAccessor,
     {
@@ -157,6 +185,7 @@ const apolloCursorPaginationBuilder = ({
       getNodesLength,
       removeNodesFromEnd,
       removeNodesFromBeginning,
+      orderNodesBy,
     }, {
       before, after, first, last,
     }, {
@@ -185,6 +214,13 @@ const apolloCursorPaginationBuilder = ({
         orderColumn, ascOrDesc,
       }),
     },
+    totalCount: totalCount(allNodesAccessor, {
+      removeNodesBeforeAndIncluding, removeNodesAfterAndIncluding, getNodesLength,
+    }, {
+      before, after, first, last,
+    }, {
+      orderColumn, ascOrDesc,
+    }),
     edges,
   };
 };

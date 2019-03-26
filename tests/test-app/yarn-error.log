@@ -1,8 +1,8 @@
 Arguments: 
-  /usr/local/Cellar/nvm/0.33.11/versions/node/v8.12.0/bin/node /usr/local/opt/nvm/versions/node/v8.12.0/bin/yarn add sqlite3
+  /usr/local/Cellar/nvm/0.33.11/versions/node/v8.12.0/bin/node /usr/local/opt/nvm/versions/node/v8.12.0/bin/yarn install
 
 PATH: 
-  /usr/local/opt/nvm/versions/node/v8.12.0/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+  /usr/local/opt/nvm/versions/node/v8.12.0/bin:/Users/danielmerrill/Downloads/google-cloud-sdk/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Frameworks/Mono.framework/Versions/Current/Commands
 
 Yarn version: 
   1.10.1
@@ -14,28 +14,31 @@ Platform:
   darwin x64
 
 Trace: 
-  SyntaxError: /Users/danielmerrill/Projects/apollo-cursor-pagination/tests/test-app/package.json: Unexpected token } in JSON at position 634
-      at JSON.parse (<anonymous>)
-      at /usr/local/Cellar/nvm/0.33.11/versions/node/v8.12.0/lib/node_modules/yarn/lib/cli.js:1136:59
-      at Generator.next (<anonymous>)
-      at step (/usr/local/Cellar/nvm/0.33.11/versions/node/v8.12.0/lib/node_modules/yarn/lib/cli.js:98:30)
-      at /usr/local/Cellar/nvm/0.33.11/versions/node/v8.12.0/lib/node_modules/yarn/lib/cli.js:109:13
-      at <anonymous>
+  Error: https://registry.yarnpkg.com/event-stream/-/event-stream-3.3.6.tgz: Request failed "404 Not Found"
+      at ResponseError.ExtendableBuiltin (/usr/local/Cellar/nvm/0.33.11/versions/node/v8.12.0/lib/node_modules/yarn/lib/cli.js:218:66)
+      at new ResponseError (/usr/local/Cellar/nvm/0.33.11/versions/node/v8.12.0/lib/node_modules/yarn/lib/cli.js:324:124)
+      at Request.<anonymous> (/usr/local/Cellar/nvm/0.33.11/versions/node/v8.12.0/lib/node_modules/yarn/lib/cli.js:57838:26)
+      at emitOne (events.js:116:13)
+      at Request.emit (events.js:211:7)
+      at Request.module.exports.Request.onRequestResponse (/usr/local/Cellar/nvm/0.33.11/versions/node/v8.12.0/lib/node_modules/yarn/lib/cli.js:121043:10)
+      at emitOne (events.js:116:13)
+      at ClientRequest.emit (events.js:211:7)
+      at HTTPParser.parserOnIncomingClient (_http_client.js:544:21)
+      at HTTPParser.parserOnHeadersComplete (_http_common.js:117:17)
 
 npm manifest: 
   {
-    "name": "api-gateway",
+    "name": "test-app",
     "version": "0.1.0",
-    "description": "Gate of entry to all the other services in the back-end. Should be built mostly using GraphQL.",
+    "description": "App made to test apollo-cursor-pagination lib",
     "main": "index.js",
     "author": "Daniel Merrill",
     "license": "MIT",
     "private": false,
     "dependencies": {
-      "apollo-cursor-pagination": "file:../../src",
       "apollo-link-http": "^1.5.5",
       "apollo-server": "^2.1.0",
-      "base-64": "^0.1.0",
+      "apollo-cursor-pagination": "file:../../",
       "glob": "^7.1.3",
       "graphql": "^14.0.2",
       "graphql-binding": "^2.2.5",
@@ -44,6 +47,7 @@ npm manifest:
       "lodash": "^4.17.11",
       "node-fetch": "^2.2.0",
       "objection": "^1.3.0",
+      "sqlite3": "^4.0.2"
     },
     "scripts": {
       "start": "nodemon src/index.js --exec babel-node",
@@ -1000,11 +1004,6 @@ Lockfile:
       apollo-server-env "^2.0.3"
       graphql-extensions "^0.2.1"
   
-  "apollo-cursor-pagination@file:../apollo-cursor-pagination":
-    version "0.1.0"
-    dependencies:
-      base-64 "^0.1.0"
-  
   apollo-datasource@^0.1.3:
     version "0.1.3"
     resolved "https://registry.yarnpkg.com/apollo-datasource/-/apollo-datasource-0.1.3.tgz#e7ae9d20f29a8a35f239b02f0c47169cfd78d70b"
@@ -1486,11 +1485,6 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
     integrity sha1-ibTRmasr7kneFk6gK4nORi1xt2c=
   
-  base-64@^0.1.0:
-    version "0.1.0"
-    resolved "https://registry.yarnpkg.com/base-64/-/base-64-0.1.0.tgz#780a99c84e7d600260361511c4877613bf24f6bb"
-    integrity sha1-eAqZyE59YAJgNhURxId2E78k9rs=
-  
   base@^0.11.1:
     version "0.11.2"
     resolved "https://registry.yarnpkg.com/base/-/base-0.11.2.tgz#7bde5ced145b6d551a90db87f83c558b4eb48a8f"
@@ -1636,11 +1630,6 @@ Lockfile:
     version "1.1.1"
     resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.1.1.tgz#32713bc028f75c02fdb710d7c7bcec1f2c6070ef"
     integrity sha512-MQcXEUbCKtEo7bhqEs6560Hyd4XaovZlO/k9V3hjVUF/zwW7KBVdSK4gIt/bzwS9MbR5qob+F5jusZsb0YQK2A==
-  
-  buffer-writer@1.0.1:
-    version "1.0.1"
-    resolved "https://registry.yarnpkg.com/buffer-writer/-/buffer-writer-1.0.1.tgz#22a936901e3029afcd7547eb4487ceb697a3bf08"
-    integrity sha1-Iqk2kB4wKa/NdUfrRIfOtpejvwg=
   
   builtin-modules@^1.0.0:
     version "1.1.1"
@@ -4699,6 +4688,11 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/nan/-/nan-2.11.1.tgz#90e22bccb8ca57ea4cd37cc83d3819b52eea6766"
     integrity sha512-iji6k87OSXa0CcrLl9z+ZiYSuR2o+c0bGuNmXdrhTQTakxytAFsC56SArGYoiHlJlFoHSnvmhpceZJaXkVuOtA==
   
+  nan@~2.10.0:
+    version "2.10.0"
+    resolved "https://registry.yarnpkg.com/nan/-/nan-2.10.0.tgz#96d0cd610ebd58d4b4de9cc0c6828cda99c7548f"
+    integrity sha512-bAdJv7fBLhWC+/Bls0Oza+mvTaNQtP+1RyhhhvD95pgUJz6XM5IzgmxOkItJ9tkoCiplvAnXI1tNmmUD/eScyA==
+  
   nanomatch@^1.2.9:
     version "1.2.13"
     resolved "https://registry.yarnpkg.com/nanomatch/-/nanomatch-1.2.13.tgz#b87a8aa4fc0de8fe6be88895b38983ff265bd119"
@@ -4765,7 +4759,7 @@ Lockfile:
       shellwords "^0.1.1"
       which "^1.3.0"
   
-  node-pre-gyp@^0.10.0:
+  node-pre-gyp@^0.10.0, node-pre-gyp@^0.10.3:
     version "0.10.3"
     resolved "https://registry.yarnpkg.com/node-pre-gyp/-/node-pre-gyp-0.10.3.tgz#3070040716afdc778747b61b6887bf78880b80fc"
     integrity sha512-d1xFs+C/IPS8Id0qPTZ4bUT8wWryfR/OzzAFxweG+uLN85oPzyo2Iw6bVlLQ/JOdgNonXLCoRyqDzDWq4iw72A==
@@ -5098,11 +5092,6 @@ Lockfile:
       registry-url "^3.0.3"
       semver "^5.1.0"
   
-  packet-reader@0.3.1:
-    version "0.3.1"
-    resolved "https://registry.yarnpkg.com/packet-reader/-/packet-reader-0.3.1.tgz#cd62e60af8d7fea8a705ec4ff990871c46871f27"
-    integrity sha1-zWLmCvjX/qinBexP+ZCHHEaHHyc=
-  
   parse-filepath@^1.0.1:
     version "1.0.2"
     resolved "https://registry.yarnpkg.com/parse-filepath/-/parse-filepath-1.0.2.tgz#a632127f53aaf3d15876f5872f3ffac763d6c891"
@@ -5236,50 +5225,10 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
     integrity sha1-Ywn04OX6kT7BxpMHrjZLSzd8nns=
   
-  pg-connection-string@0.1.3:
-    version "0.1.3"
-    resolved "https://registry.yarnpkg.com/pg-connection-string/-/pg-connection-string-0.1.3.tgz#da1847b20940e42ee1492beaf65d49d91b245df7"
-    integrity sha1-2hhHsglA5C7hSSvq9l1J2RskXfc=
-  
   pg-connection-string@2.0.0:
     version "2.0.0"
     resolved "https://registry.yarnpkg.com/pg-connection-string/-/pg-connection-string-2.0.0.tgz#3eefe5997e06d94821e4d502e42b6a1c73f8df82"
     integrity sha1-Pu/lmX4G2Ugh5NUC5CtqHHP434I=
-  
-  pg-pool@~2.0.3:
-    version "2.0.3"
-    resolved "https://registry.yarnpkg.com/pg-pool/-/pg-pool-2.0.3.tgz#c022032c8949f312a4f91fb6409ce04076be3257"
-    integrity sha1-wCIDLIlJ8xKk+R+2QJzgQHa+Mlc=
-  
-  pg-types@~1.12.1:
-    version "1.12.1"
-    resolved "https://registry.yarnpkg.com/pg-types/-/pg-types-1.12.1.tgz#d64087e3903b58ffaad279e7595c52208a14c3d2"
-    integrity sha1-1kCH45A7WP+q0nnnWVxSIIoUw9I=
-    dependencies:
-      postgres-array "~1.0.0"
-      postgres-bytea "~1.0.0"
-      postgres-date "~1.0.0"
-      postgres-interval "^1.1.0"
-  
-  pg@^7.5.0:
-    version "7.5.0"
-    resolved "https://registry.yarnpkg.com/pg/-/pg-7.5.0.tgz#c2853bef2fcb91424ba2f649fd951ce866a84760"
-    integrity sha512-VFyAnp8xsMZp8nwZnMp7lmU5QcWDOZSI3IDNcWv6pblsiOXis5o7lD7/zzVK1Z1JTBiIDDGQAMbFMkiUzCL59A==
-    dependencies:
-      buffer-writer "1.0.1"
-      packet-reader "0.3.1"
-      pg-connection-string "0.1.3"
-      pg-pool "~2.0.3"
-      pg-types "~1.12.1"
-      pgpass "1.x"
-      semver "4.3.2"
-  
-  pgpass@1.x:
-    version "1.0.2"
-    resolved "https://registry.yarnpkg.com/pgpass/-/pgpass-1.0.2.tgz#2a7bb41b6065b67907e91da1b07c1847c877b306"
-    integrity sha1-Knu0G2BltnkH6R2hsHwYR8h3swY=
-    dependencies:
-      split "^1.0.0"
   
   pify@^2.0.0:
     version "2.3.0"
@@ -5338,28 +5287,6 @@ Lockfile:
     version "0.1.1"
     resolved "https://registry.yarnpkg.com/posix-character-classes/-/posix-character-classes-0.1.1.tgz#01eac0fe3b5af71a2a6c02feabb8c1fef7e00eab"
     integrity sha1-AerA/jta9xoqbAL+q7jB/vfgDqs=
-  
-  postgres-array@~1.0.0:
-    version "1.0.3"
-    resolved "https://registry.yarnpkg.com/postgres-array/-/postgres-array-1.0.3.tgz#c561fc3b266b21451fc6555384f4986d78ec80f5"
-    integrity sha512-5wClXrAP0+78mcsNX3/ithQ5exKvCyK5lr5NEEEeGwwM6NJdQgzIJBVxLvRW+huFpX92F2QnZ5CcokH0VhK2qQ==
-  
-  postgres-bytea@~1.0.0:
-    version "1.0.0"
-    resolved "https://registry.yarnpkg.com/postgres-bytea/-/postgres-bytea-1.0.0.tgz#027b533c0aa890e26d172d47cf9ccecc521acd35"
-    integrity sha1-AntTPAqokOJtFy1Hz5zOzFIazTU=
-  
-  postgres-date@~1.0.0:
-    version "1.0.3"
-    resolved "https://registry.yarnpkg.com/postgres-date/-/postgres-date-1.0.3.tgz#e2d89702efdb258ff9d9cee0fe91bd06975257a8"
-    integrity sha1-4tiXAu/bJY/52c7g/pG9BpdSV6g=
-  
-  postgres-interval@^1.1.0:
-    version "1.1.2"
-    resolved "https://registry.yarnpkg.com/postgres-interval/-/postgres-interval-1.1.2.tgz#bf71ff902635f21cb241a013fc421d81d1db15a9"
-    integrity sha512-fC3xNHeTskCxL1dC8KOtxXt7YeFmlbTYtn7ul8MkVERuTmf7pI4DrkAxcw3kh1fQ9uz4wQmd03a1mRiXUZChfQ==
-    dependencies:
-      xtend "^4.0.0"
   
   prelude-ls@~1.1.2:
     version "1.1.2"
@@ -5928,11 +5855,6 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/semver/-/semver-5.5.1.tgz#7dfdd8814bdb7cabc7be0fb1d734cfb66c940477"
     integrity sha512-PqpAxfrEhlSUWge8dwIp4tZnQ25DIOthpiaHNIthsjEFQD6EvqUKUDM7L8O2rShkFccYo1VjJR0coWfNkCubRw==
   
-  semver@4.3.2:
-    version "4.3.2"
-    resolved "https://registry.yarnpkg.com/semver/-/semver-4.3.2.tgz#c7a07158a80bedd052355b770d82d6640f803be7"
-    integrity sha1-x6BxWKgL7dBSNVt3DYLWZA+AO+c=
-  
   send@0.16.2:
     version "0.16.2"
     resolved "https://registry.yarnpkg.com/send/-/send-0.16.2.tgz#6ecca1e0f8c156d141597559848df64730a6bbc1"
@@ -6145,7 +6067,7 @@ Lockfile:
     dependencies:
       extend-shallow "^3.0.0"
   
-  split@^1.0.0, split@^1.0.1:
+  split@^1.0.1:
     version "1.0.1"
     resolved "https://registry.yarnpkg.com/split/-/split-1.0.1.tgz#605bd9be303aa59fb35f9229fbea0ddec9ea07d9"
     integrity sha512-mTyOoPbrivtXnwnIxZRFYRrPNtEFKlpB2fvjSnCQUiAA6qAZzqwna5envK4uk6OIeP17CsdF3rSBGYVBsU0Tkg==
@@ -6156,6 +6078,15 @@ Lockfile:
     version "1.0.3"
     resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
     integrity sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
+  
+  sqlite3@^4.0.2:
+    version "4.0.2"
+    resolved "https://registry.yarnpkg.com/sqlite3/-/sqlite3-4.0.2.tgz#1bbeb68b03ead5d499e42a3a1b140064791c5a64"
+    integrity sha512-51ferIRwYOhzUEtogqOa/y9supADlAht98bF/gbIi6WkzRJX6Yioldxbzj1MV4yV+LgdKD/kkHwFTeFXOG4htA==
+    dependencies:
+      nan "~2.10.0"
+      node-pre-gyp "^0.10.3"
+      request "^2.87.0"
   
   sshpk@^1.7.0:
     version "1.14.2"
@@ -6840,11 +6771,6 @@ Lockfile:
     version "3.0.0"
     resolved "https://registry.yarnpkg.com/xml-name-validator/-/xml-name-validator-3.0.0.tgz#6ae73e06de4d8c6e47f9fb181f78d648ad457c6a"
     integrity sha512-A5CUptxDsvxKJEU3yO6DuWBSJz/qizqzJKOMIfUJHETbBw/sFaDxgd6fxm1ewUaM0jZ444Fc5vC5ROYurg/4Pw==
-  
-  xtend@^4.0.0:
-    version "4.0.1"
-    resolved "https://registry.yarnpkg.com/xtend/-/xtend-4.0.1.tgz#a5c6d532be656e23db820efb943a1f04998d63af"
-    integrity sha1-pcbVMr5lbiPbgg77lDofBJmNY68=
   
   y18n@^3.2.1:
     version "3.2.1"
