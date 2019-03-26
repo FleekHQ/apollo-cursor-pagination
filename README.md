@@ -24,13 +24,24 @@ For example with the knex connector:
 
 ```javascript
 // cats-connection.js
-import paginate from 'apollo-cursor-pagination/orm-connectors/knex';
-import Cat from '../../../models/Cat';
+import { knexPaginator as paginate } from 'apollo-cursor-pagination/orm-connectors/knex';
+import knex from '../../../db'; // Or instantiate a connection here
 
 export default async (_, args) => {
-  const catsAccessor = Cat.query();
+  // orderBy must be the column to sort with or an array of columns for ordering by multiple fields
+  // orderDirection must be 'asc' or 'desc', or an array of those values if ordering by multiples
+  const {
+    first, last, before, after, orderBy, orderDirection,
+  } = args;
 
-  const result = await paginate(catsAccessor, args, { orderColumn: 'id', ascOrDesc: 'asc' });
+  const baseQuery = knex('cats');
+
+  const result = await paginate(baseQuery, {first, last, before, after, orderBy, orderDirection});
+  /* result will contain:
+  * edges
+  * totalCount
+  * pageInfo { hasPreviousPage, hasNextPage, }
+  */
   return result;
 };
 ```
