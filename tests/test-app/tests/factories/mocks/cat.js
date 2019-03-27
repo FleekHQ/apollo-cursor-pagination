@@ -6,5 +6,6 @@ module.exports = {
   className: 'Cat',
   mockFn: () => ({
     name: faker.commerce.productName(),
+    lastName: faker.commerce.productName(),
   }),
 };

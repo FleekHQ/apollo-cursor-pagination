@@ -14,6 +14,7 @@ node_modules/
 
 # Logs
 yarn-error.log
+**/yarn-error.log
 
 # compiled/distributable files
 dist/
