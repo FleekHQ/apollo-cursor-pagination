@@ -24,7 +24,7 @@ For example with the knex connector:
 
 ```javascript
 // cats-connection.js
-import { knexPaginator as paginate } from 'apollo-cursor-pagination/orm-connectors/knex';
+import { knexPaginator as paginate } from 'apollo-cursor-pagination';
 import knex from '../../../db'; // Or instantiate a connection here
 
 export default async (_, args) => {
