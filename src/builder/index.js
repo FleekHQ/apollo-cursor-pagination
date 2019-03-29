@@ -14,15 +14,15 @@ const applyCursorsToNodes = (
     removeNodesBeforeAndIncluding,
     removeNodesAfterAndIncluding,
   }, {
-    orderColumn, ascOrDesc,
+    orderColumn, ascOrDesc, orderByAggregate,
   },
 ) => {
   let nodesAccessor = allNodesAccessor;
   if (after !== undefined) {
-    nodesAccessor = removeNodesBeforeAndIncluding(nodesAccessor, after, { orderColumn, ascOrDesc });
+    nodesAccessor = removeNodesBeforeAndIncluding(nodesAccessor, after, { orderColumn, ascOrDesc, orderByAggregate });
   }
   if (before !== undefined) {
-    nodesAccessor = removeNodesAfterAndIncluding(nodesAccessor, before, { orderColumn, ascOrDesc });
+    nodesAccessor = removeNodesAfterAndIncluding(nodesAccessor, before, { orderColumn, ascOrDesc, orderByAggregate });
   }
   return nodesAccessor;
 };
@@ -47,7 +47,7 @@ const nodesToReturn = async (
   {
     before, after, first, last,
   }, {
-    orderColumn, ascOrDesc,
+    orderColumn, ascOrDesc, orderByAggregate,
   },
 ) => {
   const orderedNodesAccessor = orderNodesBy(allNodesAccessor, orderColumn, ascOrDesc);
@@ -58,7 +58,7 @@ const nodesToReturn = async (
       removeNodesBeforeAndIncluding,
       removeNodesAfterAndIncluding,
     }, {
-      orderColumn, ascOrDesc,
+      orderColumn, ascOrDesc, orderByAggregate,
     },
   );
 
@@ -90,12 +90,12 @@ const hasPreviousPage = async (allNodesAccessor,
   }, {
     before, after, first, last,
   }, {
-    orderColumn, ascOrDesc,
+    orderColumn, ascOrDesc, orderByAggregate,
   }) => {
   if (last) {
     const nodes = applyCursorsToNodes(allNodesAccessor, { before, after }, {
       removeNodesBeforeAndIncluding, removeNodesAfterAndIncluding,
-    }, { orderColumn, ascOrDesc });
+    }, { orderColumn, ascOrDesc, orderByAggregate });
     const length = await getNodesLength(nodes);
     if (length > last) return true;
   }
@@ -118,12 +118,12 @@ const hasNextPage = async (allNodesAccessor,
   }, {
     before, after, first, last,
   }, {
-    orderColumn, ascOrDesc,
+    orderColumn, ascOrDesc, orderByAggregate,
   }) => {
   if (first) {
     const nodes = applyCursorsToNodes(allNodesAccessor, { before, after }, {
       removeNodesBeforeAndIncluding, removeNodesAfterAndIncluding,
-    }, { orderColumn, ascOrDesc });
+    }, { orderColumn, ascOrDesc, orderByAggregate });
     const length = await getNodesLength(nodes);
     if (length > first) return true;
   }
@@ -139,11 +139,11 @@ const totalCount = async (allNodesAccessor,
   }, {
     before, after,
   }, {
-    orderColumn, ascOrDesc,
+    orderColumn, ascOrDesc, orderByAggregate,
   }) => {
   const nodes = applyCursorsToNodes(allNodesAccessor, { before, after }, {
     removeNodesBeforeAndIncluding, removeNodesAfterAndIncluding,
-  }, { orderColumn, ascOrDesc });
+  }, { orderColumn, ascOrDesc, orderByAggregate });
   const length = await getNodesLength(nodes);
   return length;
 };
@@ -167,6 +167,7 @@ const apolloCursorPaginationBuilder = ({
   },
   opts = {},
 ) => {
+  const { orderByAggregate = false } = opts;
   let {
     orderColumn, ascOrDesc,
   } = opts;
@@ -189,13 +190,13 @@ const apolloCursorPaginationBuilder = ({
     }, {
       before, after, first, last,
     }, {
-      orderColumn, ascOrDesc,
+      orderColumn, ascOrDesc, orderByAggregate,
     },
   );
   const edges = convertNodesToEdges(nodes, {
     before, after, first, last,
   }, {
-    orderColumn,
+    orderColumn, ascOrDesc, orderByAggregate,
   });
   return {
     pageInfo: {
@@ -204,14 +205,14 @@ const apolloCursorPaginationBuilder = ({
       }, {
         before, after, first, last,
       }, {
-        orderColumn, ascOrDesc,
+        orderColumn, ascOrDesc, orderByAggregate,
       }),
       hasNextPage: hasNextPage(allNodesAccessor, {
         removeNodesBeforeAndIncluding, removeNodesAfterAndIncluding, getNodesLength,
       }, {
         before, after, first, last,
       }, {
-        orderColumn, ascOrDesc,
+        orderColumn, ascOrDesc, orderByAggregate,
       }),
     },
     totalCount: totalCount(allNodesAccessor, {
@@ -219,7 +220,7 @@ const apolloCursorPaginationBuilder = ({
     }, {
       before, after, first, last,
     }, {
-      orderColumn, ascOrDesc,
+      orderColumn, ascOrDesc, orderByAggregate,
     }),
     edges,
   };

@@ -252,6 +252,49 @@ describe('getCatsByOwner root query', () => {
       );
     });
 
+    it('can sort by aggregate value', async () => {
+      let cursor;
+      const query = `
+        {
+          catsConnection(first: 2, orderBy: "sum", orderDirection: asc) {
+            edges {
+              cursor
+              node {
+                id
+              }
+            }
+          }
+        }
+      `;
+      const response = await graphqlQuery(app, query);
+
+      expect(response.body.errors).not.toBeDefined();
+      expect(response.body.data.catsConnection.edges.map(e => e.node.id)).toEqual(
+        [cat1, cat2].map(c => c.id).map(id => id.toString()),
+      );
+
+      cursor = response.body.data.catsConnection.edges[1].cursor;
+
+      const query2 = `
+        {
+          catsConnection(first: 1, after: "${cursor}", orderBy: "sum", orderDirection: asc) {
+            edges {
+              cursor
+              node {
+                id
+              }
+            }
+          }
+        }
+      `;
+      const response2 = await graphqlQuery(app, query2);
+
+      expect(response2.body.errors).not.toBeDefined();
+      expect(response2.body.data.catsConnection.edges.map(e => e.node.id)).toEqual(
+        [cat3].map(c => c.id.toString()),
+      );
+    });
+
     it('sorts asc and desc correctly when result set is segmented', async () => {
       let cursor;
       const query = `

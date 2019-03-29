@@ -32,7 +32,8 @@ const getDataFromCursor = (cursor) => {
   if (data[0] === undefined || data[1] === undefined) {
     throw new Error(`Could not find edge with cursor ${cursor}`);
   }
-  return data;
+  const values = data[1].split(ARRAY_DATA_SEPARATION_TOKEN).map(v => JSON.parse(v));
+  return [data[0], values];
 };
 
 const buildRemoveNodesFromBeforeOrAfer = (beforeOrAfter) => {
@@ -40,21 +41,21 @@ const buildRemoveNodesFromBeforeOrAfer = (beforeOrAfter) => {
     if (beforeOrAfter === 'after') return orderDirection === 'asc' ? '<' : '>';
     return orderDirection === 'asc' ? '>' : '<';
   };
-  return (nodesAccessor, cursorOfInitialNode, { orderColumn, ascOrDesc }) => {
+  return (nodesAccessor, cursorOfInitialNode, { orderColumn, ascOrDesc, orderByAggregate = false }) => {
     const data = getDataFromCursor(cursorOfInitialNode);
     const [id, columnValue] = data;
     const initialValue = nodesAccessor.clone();
 
     const result = operateOverScalarOrArray(initialValue, orderColumn, (orderBy, index, prev) => {
       let orderDirection;
-      let value;
-      const values = columnValue.split(ARRAY_DATA_SEPARATION_TOKEN);
+      const values = columnValue;
+      let currValue;
       if (index !== null) {
         orderDirection = ascOrDesc[index].toLowerCase();
-        value = values[index];
+        currValue = values[index];
       } else {
         orderDirection = ascOrDesc.toLowerCase();
-        value = columnValue;
+        currValue = values[0];
       }
       const comparator = getComparator(orderDirection);
 
@@ -66,7 +67,10 @@ const buildRemoveNodesFromBeforeOrAfer = (beforeOrAfter) => {
         return nested;
       }
 
-      return prev.where(orderBy, index === null ? `${comparator}=` : comparator, value);
+      if (orderByAggregate) {
+        return prev.having(orderBy, index === null ? `${comparator}=` : comparator, currValue);
+      }
+      return prev.where(orderBy, index === null ? `${comparator}=` : comparator, currValue);
     }, prev => prev.whereNot({ id }));
     return result;
   };
@@ -126,7 +130,7 @@ const convertNodesToEdges = (nodes, _, {
 }) => nodes.map((node) => {
   const dataValue = operateOverScalarOrArray('', orderColumn, (orderBy, index, prev) => {
     const nodeValue = node[orderBy];
-    const result = `${prev}${index ? ARRAY_DATA_SEPARATION_TOKEN : ''}${nodeValue}`;
+    const result = `${prev}${index ? ARRAY_DATA_SEPARATION_TOKEN : ''}${JSON.stringify(nodeValue)}`;
     return result;
   });
 
