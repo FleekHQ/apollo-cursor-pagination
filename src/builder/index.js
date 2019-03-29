@@ -14,15 +14,19 @@ const applyCursorsToNodes = (
     removeNodesBeforeAndIncluding,
     removeNodesAfterAndIncluding,
   }, {
-    orderColumn, ascOrDesc, orderByAggregate,
+    orderColumn, ascOrDesc, isAggregateFn, prefixTableNameFn,
   },
 ) => {
   let nodesAccessor = allNodesAccessor;
   if (after !== undefined) {
-    nodesAccessor = removeNodesBeforeAndIncluding(nodesAccessor, after, { orderColumn, ascOrDesc, orderByAggregate });
+    nodesAccessor = removeNodesBeforeAndIncluding(nodesAccessor, after, {
+      orderColumn, ascOrDesc, isAggregateFn, prefixTableNameFn,
+    });
   }
   if (before !== undefined) {
-    nodesAccessor = removeNodesAfterAndIncluding(nodesAccessor, before, { orderColumn, ascOrDesc, orderByAggregate });
+    nodesAccessor = removeNodesAfterAndIncluding(nodesAccessor, before, {
+      orderColumn, ascOrDesc, isAggregateFn, prefixTableNameFn,
+    });
   }
   return nodesAccessor;
 };
@@ -47,7 +51,7 @@ const nodesToReturn = async (
   {
     before, after, first, last,
   }, {
-    orderColumn, ascOrDesc, orderByAggregate,
+    orderColumn, ascOrDesc, isAggregateFn, prefixTableNameFn,
   },
 ) => {
   const orderedNodesAccessor = orderNodesBy(allNodesAccessor, orderColumn, ascOrDesc);
@@ -58,7 +62,7 @@ const nodesToReturn = async (
       removeNodesBeforeAndIncluding,
       removeNodesAfterAndIncluding,
     }, {
-      orderColumn, ascOrDesc, orderByAggregate,
+      orderColumn, ascOrDesc, isAggregateFn, prefixTableNameFn,
     },
   );
 
@@ -90,12 +94,14 @@ const hasPreviousPage = async (allNodesAccessor,
   }, {
     before, after, first, last,
   }, {
-    orderColumn, ascOrDesc, orderByAggregate,
+    orderColumn, ascOrDesc, isAggregateFn, prefixTableNameFn,
   }) => {
   if (last) {
     const nodes = applyCursorsToNodes(allNodesAccessor, { before, after }, {
       removeNodesBeforeAndIncluding, removeNodesAfterAndIncluding,
-    }, { orderColumn, ascOrDesc, orderByAggregate });
+    }, {
+      orderColumn, ascOrDesc, isAggregateFn, prefixTableNameFn,
+    });
     const length = await getNodesLength(nodes);
     if (length > last) return true;
   }
@@ -118,12 +124,14 @@ const hasNextPage = async (allNodesAccessor,
   }, {
     before, after, first, last,
   }, {
-    orderColumn, ascOrDesc, orderByAggregate,
+    orderColumn, ascOrDesc, isAggregateFn, prefixTableNameFn,
   }) => {
   if (first) {
     const nodes = applyCursorsToNodes(allNodesAccessor, { before, after }, {
       removeNodesBeforeAndIncluding, removeNodesAfterAndIncluding,
-    }, { orderColumn, ascOrDesc, orderByAggregate });
+    }, {
+      orderColumn, ascOrDesc, isAggregateFn, prefixTableNameFn,
+    });
     const length = await getNodesLength(nodes);
     if (length > first) return true;
   }
@@ -139,11 +147,13 @@ const totalCount = async (allNodesAccessor,
   }, {
     before, after,
   }, {
-    orderColumn, ascOrDesc, orderByAggregate,
+    orderColumn, ascOrDesc, isAggregateFn, prefixTableNameFn,
   }) => {
   const nodes = applyCursorsToNodes(allNodesAccessor, { before, after }, {
     removeNodesBeforeAndIncluding, removeNodesAfterAndIncluding,
-  }, { orderColumn, ascOrDesc, orderByAggregate });
+  }, {
+    orderColumn, ascOrDesc, isAggregateFn, prefixTableNameFn,
+  });
   const length = await getNodesLength(nodes);
   return length;
 };
@@ -167,7 +177,7 @@ const apolloCursorPaginationBuilder = ({
   },
   opts = {},
 ) => {
-  const { orderByAggregate = false } = opts;
+  const { isAggregateFn, prefixTableNameFn } = opts;
   let {
     orderColumn, ascOrDesc,
   } = opts;
@@ -190,13 +200,13 @@ const apolloCursorPaginationBuilder = ({
     }, {
       before, after, first, last,
     }, {
-      orderColumn, ascOrDesc, orderByAggregate,
+      orderColumn, ascOrDesc, isAggregateFn, prefixTableNameFn,
     },
   );
   const edges = convertNodesToEdges(nodes, {
     before, after, first, last,
   }, {
-    orderColumn, ascOrDesc, orderByAggregate,
+    orderColumn, ascOrDesc, isAggregateFn, prefixTableNameFn,
   });
   return {
     pageInfo: {
@@ -205,14 +215,14 @@ const apolloCursorPaginationBuilder = ({
       }, {
         before, after, first, last,
       }, {
-        orderColumn, ascOrDesc, orderByAggregate,
+        orderColumn, ascOrDesc, isAggregateFn, prefixTableNameFn,
       }),
       hasNextPage: hasNextPage(allNodesAccessor, {
         removeNodesBeforeAndIncluding, removeNodesAfterAndIncluding, getNodesLength,
       }, {
         before, after, first, last,
       }, {
-        orderColumn, ascOrDesc, orderByAggregate,
+        orderColumn, ascOrDesc, isAggregateFn, prefixTableNameFn,
       }),
     },
     totalCount: totalCount(allNodesAccessor, {
@@ -220,7 +230,7 @@ const apolloCursorPaginationBuilder = ({
     }, {
       before, after, first, last,
     }, {
-      orderColumn, ascOrDesc, orderByAggregate,
+      orderColumn, ascOrDesc, isAggregateFn, prefixTableNameFn,
     }),
     edges,
   };

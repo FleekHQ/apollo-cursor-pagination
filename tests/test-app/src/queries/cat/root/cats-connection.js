@@ -19,7 +19,8 @@ export default async (_, args) => {
       orderDirection,
     },
     {
-      orderByAggregate: orderBy === 'sum',
+      isAggregateFn: column => column === 'sum',
+      prefixTableNameFn: column => column === 'sum',
     },
   );
   return result;

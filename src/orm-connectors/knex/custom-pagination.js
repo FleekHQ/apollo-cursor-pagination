@@ -36,16 +36,25 @@ const getDataFromCursor = (cursor) => {
   return [data[0], values];
 };
 
+const addPrefixIfAvailable = (column, prefixTableNameFn) => {
+  if (prefixTableNameFn) {
+    const result = prefixTableNameFn(column);
+    if (result) return `${result}.${column}`;
+  }
+  return column;
+};
+
 const buildRemoveNodesFromBeforeOrAfer = (beforeOrAfter) => {
   const getComparator = (orderDirection) => {
     if (beforeOrAfter === 'after') return orderDirection === 'asc' ? '<' : '>';
     return orderDirection === 'asc' ? '>' : '<';
   };
-  return (nodesAccessor, cursorOfInitialNode, { orderColumn, ascOrDesc, orderByAggregate = false }) => {
+  return (nodesAccessor, cursorOfInitialNode, {
+    orderColumn, ascOrDesc, isAggregateFn, prefixTableNameFn,
+  }) => {
     const data = getDataFromCursor(cursorOfInitialNode);
     const [id, columnValue] = data;
     const initialValue = nodesAccessor.clone();
-
     const result = operateOverScalarOrArray(initialValue, orderColumn, (orderBy, index, prev) => {
       let orderDirection;
       const values = columnValue;
@@ -61,17 +70,25 @@ const buildRemoveNodesFromBeforeOrAfer = (beforeOrAfter) => {
 
       if (index > 0) {
         const nested = prev.orWhere(function () {
-          this.where(orderColumn[index], `${comparator}=`, values[index])
-            .andWhere(orderColumn[index - 1], '=', values[index - 1]);
+          this.where(
+            addPrefixIfAvailable(orderBy, prefixTableNameFn), `${comparator}=`, values[index],
+          ).andWhere(
+            addPrefixIfAvailable(orderColumn[index - 1], prefixTableNameFn), '=', values[index - 1],
+          );
         });
         return nested;
       }
 
-      if (orderByAggregate) {
+      if (isAggregateFn && isAggregateFn(orderBy)) {
         return prev.having(orderBy, index === null ? `${comparator}=` : comparator, currValue);
       }
-      return prev.where(orderBy, index === null ? `${comparator}=` : comparator, currValue);
-    }, prev => prev.whereNot({ id }));
+
+      return prev.where(
+        addPrefixIfAvailable(orderBy, prefixTableNameFn),
+        index === null ? `${comparator}=` : comparator,
+        currValue,
+      );
+    }, prev => prev.where(addPrefixIfAvailable('id', prefixTableNameFn), '<>', id));
     return result;
   };
 };
