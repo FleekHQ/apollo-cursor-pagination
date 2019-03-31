@@ -68,27 +68,30 @@ const buildRemoveNodesFromBeforeOrAfer = (beforeOrAfter) => {
       const comparator = getComparator(orderDirection);
 
       if (index > 0) {
-        const nested = prev.orWhere(function () {
-          this.where(
-            formatColumnIfAvailable(orderBy, formatColumnFn), `${comparator}=`, values[index],
-          ).andWhere(
-            formatColumnIfAvailable(orderColumn[index - 1], formatColumnFn), '=', values[index - 1],
-          );
-        });
+        const operation = (isAggregateFn && isAggregateFn(orderColumn[index - 1])) ? 'orHavingRaw' : 'orWhereRaw';
+        const nested = prev[operation](
+          `(${formatColumnIfAvailable(orderColumn[index - 1], formatColumnFn)} = ? and ${formatColumnIfAvailable(orderBy, formatColumnFn)} ${comparator} ?)`,
+          [values[index - 1], values[index]],
+        );
+
         return nested;
       }
 
-      if (isAggregateFn && isAggregateFn(orderBy)) {
-        return prev.havingRaw(`${formatColumnIfAvailable(orderBy, formatColumnFn)} ${index === null ? `${comparator}=` : comparator} ?`, [currValue]);
-      }
+      const operation = (isAggregateFn && isAggregateFn(orderBy)) ? 'havingRaw' : 'whereRaw';
 
-      return prev.where(
-        formatColumnIfAvailable(orderBy, formatColumnFn),
-        index === null ? `${comparator}=` : comparator,
-        currValue,
-      );
+      return prev[operation](`(${formatColumnIfAvailable(orderBy, formatColumnFn)} ${comparator} ?)`, [currValue]);
+    }, (prev, isArray) => {
       // Result is sorted by id as the last column
-    }, prev => prev.where(formatColumnIfAvailable('id', formatColumnFn), getComparator(ascOrDesc), id));
+      const comparator = getComparator(ascOrDesc);
+      const lastOrderColumn = isArray ? orderColumn.pop() : orderColumn;
+      const lastValue = columnValue.pop();
+      const operation = (isAggregateFn && isAggregateFn(lastOrderColumn)) ? 'orHavingRaw' : 'orWhereRaw';
+      const nested = prev[operation](
+        `(${formatColumnIfAvailable(lastOrderColumn, formatColumnFn)} = ? and ${formatColumnIfAvailable('id', formatColumnFn)} ${comparator} ?)`,
+        [lastValue, id],
+      );
+      return nested;
+    });
     return result;
   };
 };

@@ -18,13 +18,14 @@ var _default = async (_, args) => {
   const orderBy = args.orderBy || args.orderByMultiple;
   const orderDirection = args.orderDirection || args.orderDirectionMultiple;
 
-  const baseQuery = _Cat.default.query().sum('id as sum').select('cats.*').groupBy('id');
+  const baseQuery = _Cat.default.query().sum('id as idsum').select('cats.*').groupBy('id');
 
   const result = await (0, _apolloCursorPagination.knexPaginator)(baseQuery, { ...args,
     orderBy,
     orderDirection
   }, {
-    orderByAggregate: orderBy === 'sum'
+    isAggregateFn: column => column === 'idsum',
+    formatColumnFn: column => column === 'idsum' ? 'sum(id)' : column
   });
   return result;
 };
