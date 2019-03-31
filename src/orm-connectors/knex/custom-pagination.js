@@ -87,7 +87,8 @@ const buildRemoveNodesFromBeforeOrAfer = (beforeOrAfter) => {
         index === null ? `${comparator}=` : comparator,
         currValue,
       );
-    }, prev => prev.where(formatColumnIfAvailable('id', formatColumnFn), '<>', id));
+      // Result is sorted by id as the last column
+    }, prev => prev.where(formatColumnIfAvailable('id', formatColumnFn), getComparator(ascOrDesc), id));
     return result;
   };
 };

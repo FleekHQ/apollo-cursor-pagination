@@ -20,7 +20,7 @@ export default async (_, args) => {
     },
     {
       isAggregateFn: column => column === 'idsum',
-      formatColumnFn: column => (column === 'sum' ? 'sum(id)' : column),
+      formatColumnFn: column => (column === 'idsum' ? 'sum(id)' : column),
     },
   );
   return result;
