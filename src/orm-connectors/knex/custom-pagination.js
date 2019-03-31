@@ -79,7 +79,7 @@ const buildRemoveNodesFromBeforeOrAfer = (beforeOrAfter) => {
       }
 
       if (isAggregateFn && isAggregateFn(orderBy)) {
-        return prev.having(formatColumnIfAvailable(orderBy, formatColumnFn), index === null ? `${comparator}=` : comparator, currValue);
+        return prev.havingRaw(`${formatColumnIfAvailable(orderBy, formatColumnFn)} ${index === null ? `${comparator}=` : comparator} ?`, [currValue]);
       }
 
       return prev.where(
