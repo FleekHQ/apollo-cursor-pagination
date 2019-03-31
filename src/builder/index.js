@@ -141,20 +141,9 @@ const hasNextPage = async (allNodesAccessor,
 
 const totalCount = async (allNodesAccessor,
   {
-    removeNodesBeforeAndIncluding,
-    removeNodesAfterAndIncluding,
     getNodesLength,
-  }, {
-    before, after,
-  }, {
-    orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
   }) => {
-  const nodes = applyCursorsToNodes(allNodesAccessor, { before, after }, {
-    removeNodesBeforeAndIncluding, removeNodesAfterAndIncluding,
-  }, {
-    orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
-  });
-  const length = await getNodesLength(nodes);
+  const length = await getNodesLength(allNodesAccessor);
   return length;
 };
 
@@ -226,11 +215,7 @@ const apolloCursorPaginationBuilder = ({
       }),
     },
     totalCount: totalCount(allNodesAccessor, {
-      removeNodesBeforeAndIncluding, removeNodesAfterAndIncluding, getNodesLength,
-    }, {
-      before, after, first, last,
-    }, {
-      orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
+      getNodesLength,
     }),
     edges,
   };

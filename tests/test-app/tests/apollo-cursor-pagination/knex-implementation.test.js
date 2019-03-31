@@ -257,6 +257,7 @@ describe('getCatsByOwner root query', () => {
       const query = `
         {
           catsConnection(first: 2, orderBy: "idsum", orderDirection: asc) {
+            totalCount
             edges {
               cursor
               node {
@@ -269,6 +270,7 @@ describe('getCatsByOwner root query', () => {
       const response = await graphqlQuery(app, query);
 
       expect(response.body.errors).not.toBeDefined();
+      expect(response.body.data.catsConnection.totalCount).toEqual(3);
       expect(response.body.data.catsConnection.edges.map(e => e.node.id)).toEqual(
         [cat1, cat2].map(c => c.id).map(id => id.toString()),
       );
@@ -278,6 +280,7 @@ describe('getCatsByOwner root query', () => {
       const query2 = `
         {
           catsConnection(first: 1, after: "${cursor}", orderBy: "idsum", orderDirection: asc) {
+            totalCount
             edges {
               cursor
               node {
@@ -290,6 +293,7 @@ describe('getCatsByOwner root query', () => {
       const response2 = await graphqlQuery(app, query2);
 
       expect(response2.body.errors).not.toBeDefined();
+      expect(response.body.data.catsConnection.totalCount).toEqual(3);
       expect(response2.body.data.catsConnection.edges.map(e => e.node.id)).toEqual(
         [cat3].map(c => c.id.toString()),
       );
@@ -591,7 +595,7 @@ describe('getCatsByOwner root query', () => {
 
       expect(response.body.errors).not.toBeDefined();
       expect(response.body.data.catsConnection.totalCount).toBeDefined();
-      expect(response.body.data.catsConnection.totalCount).toEqual(2);
+      expect(response.body.data.catsConnection.totalCount).toEqual(3);
     });
   });
 });
