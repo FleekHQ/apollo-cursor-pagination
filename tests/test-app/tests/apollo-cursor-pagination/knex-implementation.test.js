@@ -256,7 +256,7 @@ describe('getCatsByOwner root query', () => {
       let cursor;
       const query = `
         {
-          catsConnection(first: 2, orderBy: "sum", orderDirection: asc) {
+          catsConnection(first: 2, orderBy: "idsum", orderDirection: asc) {
             edges {
               cursor
               node {
@@ -277,7 +277,7 @@ describe('getCatsByOwner root query', () => {
 
       const query2 = `
         {
-          catsConnection(first: 1, after: "${cursor}", orderBy: "sum", orderDirection: asc) {
+          catsConnection(first: 1, after: "${cursor}", orderBy: "idsum", orderDirection: asc) {
             edges {
               cursor
               node {

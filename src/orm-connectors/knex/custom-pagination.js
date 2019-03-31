@@ -36,10 +36,9 @@ const getDataFromCursor = (cursor) => {
   return [data[0], values];
 };
 
-const addPrefixIfAvailable = (column, prefixTableNameFn) => {
-  if (prefixTableNameFn) {
-    const result = prefixTableNameFn(column);
-    if (result) return `${result}.${column}`;
+const formatColumnIfAvailable = (column, formatColumnFn) => {
+  if (formatColumnFn) {
+    return formatColumnFn(column);
   }
   return column;
 };
@@ -50,7 +49,7 @@ const buildRemoveNodesFromBeforeOrAfer = (beforeOrAfter) => {
     return orderDirection === 'asc' ? '>' : '<';
   };
   return (nodesAccessor, cursorOfInitialNode, {
-    orderColumn, ascOrDesc, isAggregateFn, prefixTableNameFn,
+    orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
   }) => {
     const data = getDataFromCursor(cursorOfInitialNode);
     const [id, columnValue] = data;
@@ -71,24 +70,24 @@ const buildRemoveNodesFromBeforeOrAfer = (beforeOrAfter) => {
       if (index > 0) {
         const nested = prev.orWhere(function () {
           this.where(
-            addPrefixIfAvailable(orderBy, prefixTableNameFn), `${comparator}=`, values[index],
+            formatColumnIfAvailable(orderBy, formatColumnFn), `${comparator}=`, values[index],
           ).andWhere(
-            addPrefixIfAvailable(orderColumn[index - 1], prefixTableNameFn), '=', values[index - 1],
+            formatColumnIfAvailable(orderColumn[index - 1], formatColumnFn), '=', values[index - 1],
           );
         });
         return nested;
       }
 
       if (isAggregateFn && isAggregateFn(orderBy)) {
-        return prev.having(orderBy, index === null ? `${comparator}=` : comparator, currValue);
+        return prev.having(formatColumnIfAvailable(orderBy, formatColumnFn), index === null ? `${comparator}=` : comparator, currValue);
       }
 
       return prev.where(
-        addPrefixIfAvailable(orderBy, prefixTableNameFn),
+        formatColumnIfAvailable(orderBy, formatColumnFn),
         index === null ? `${comparator}=` : comparator,
         currValue,
       );
-    }, prev => prev.where(addPrefixIfAvailable('id', prefixTableNameFn), '<>', id));
+    }, prev => prev.where(formatColumnIfAvailable('id', formatColumnFn), '<>', id));
     return result;
   };
 };
