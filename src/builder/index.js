@@ -14,15 +14,19 @@ const applyCursorsToNodes = (
     removeNodesBeforeAndIncluding,
     removeNodesAfterAndIncluding,
   }, {
-    orderColumn, ascOrDesc,
+    orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
   },
 ) => {
   let nodesAccessor = allNodesAccessor;
   if (after !== undefined) {
-    nodesAccessor = removeNodesBeforeAndIncluding(nodesAccessor, after, { orderColumn, ascOrDesc });
+    nodesAccessor = removeNodesBeforeAndIncluding(nodesAccessor, after, {
+      orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
+    });
   }
   if (before !== undefined) {
-    nodesAccessor = removeNodesAfterAndIncluding(nodesAccessor, before, { orderColumn, ascOrDesc });
+    nodesAccessor = removeNodesAfterAndIncluding(nodesAccessor, before, {
+      orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
+    });
   }
   return nodesAccessor;
 };
@@ -47,7 +51,7 @@ const nodesToReturn = async (
   {
     before, after, first, last,
   }, {
-    orderColumn, ascOrDesc,
+    orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
   },
 ) => {
   const orderedNodesAccessor = orderNodesBy(allNodesAccessor, orderColumn, ascOrDesc);
@@ -58,7 +62,7 @@ const nodesToReturn = async (
       removeNodesBeforeAndIncluding,
       removeNodesAfterAndIncluding,
     }, {
-      orderColumn, ascOrDesc,
+      orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
     },
   );
 
@@ -90,12 +94,14 @@ const hasPreviousPage = async (allNodesAccessor,
   }, {
     before, after, first, last,
   }, {
-    orderColumn, ascOrDesc,
+    orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
   }) => {
   if (last) {
     const nodes = applyCursorsToNodes(allNodesAccessor, { before, after }, {
       removeNodesBeforeAndIncluding, removeNodesAfterAndIncluding,
-    }, { orderColumn, ascOrDesc });
+    }, {
+      orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
+    });
     const length = await getNodesLength(nodes);
     if (length > last) return true;
   }
@@ -118,12 +124,14 @@ const hasNextPage = async (allNodesAccessor,
   }, {
     before, after, first, last,
   }, {
-    orderColumn, ascOrDesc,
+    orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
   }) => {
   if (first) {
     const nodes = applyCursorsToNodes(allNodesAccessor, { before, after }, {
       removeNodesBeforeAndIncluding, removeNodesAfterAndIncluding,
-    }, { orderColumn, ascOrDesc });
+    }, {
+      orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
+    });
     const length = await getNodesLength(nodes);
     if (length > first) return true;
   }
@@ -133,18 +141,9 @@ const hasNextPage = async (allNodesAccessor,
 
 const totalCount = async (allNodesAccessor,
   {
-    removeNodesBeforeAndIncluding,
-    removeNodesAfterAndIncluding,
     getNodesLength,
-  }, {
-    before, after,
-  }, {
-    orderColumn, ascOrDesc,
   }) => {
-  const nodes = applyCursorsToNodes(allNodesAccessor, { before, after }, {
-    removeNodesBeforeAndIncluding, removeNodesAfterAndIncluding,
-  }, { orderColumn, ascOrDesc });
-  const length = await getNodesLength(nodes);
+  const length = await getNodesLength(allNodesAccessor);
   return length;
 };
 
@@ -167,6 +166,7 @@ const apolloCursorPaginationBuilder = ({
   },
   opts = {},
 ) => {
+  const { isAggregateFn, formatColumnFn } = opts;
   let {
     orderColumn, ascOrDesc,
   } = opts;
@@ -189,13 +189,13 @@ const apolloCursorPaginationBuilder = ({
     }, {
       before, after, first, last,
     }, {
-      orderColumn, ascOrDesc,
+      orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
     },
   );
   const edges = convertNodesToEdges(nodes, {
     before, after, first, last,
   }, {
-    orderColumn,
+    orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
   });
   return {
     pageInfo: {
@@ -204,22 +204,18 @@ const apolloCursorPaginationBuilder = ({
       }, {
         before, after, first, last,
       }, {
-        orderColumn, ascOrDesc,
+        orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
       }),
       hasNextPage: hasNextPage(allNodesAccessor, {
         removeNodesBeforeAndIncluding, removeNodesAfterAndIncluding, getNodesLength,
       }, {
         before, after, first, last,
       }, {
-        orderColumn, ascOrDesc,
+        orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
       }),
     },
     totalCount: totalCount(allNodesAccessor, {
-      removeNodesBeforeAndIncluding, removeNodesAfterAndIncluding, getNodesLength,
-    }, {
-      before, after, first, last,
-    }, {
-      orderColumn, ascOrDesc,
+      getNodesLength,
     }),
     edges,
   };
