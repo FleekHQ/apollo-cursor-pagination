@@ -32,7 +32,15 @@ const getDataFromCursor = (cursor) => {
   if (data[0] === undefined || data[1] === undefined) {
     throw new Error(`Could not find edge with cursor ${cursor}`);
   }
-  return data;
+  const values = data[1].split(ARRAY_DATA_SEPARATION_TOKEN).map(v => JSON.parse(v));
+  return [data[0], values];
+};
+
+const formatColumnIfAvailable = (column, formatColumnFn) => {
+  if (formatColumnFn) {
+    return formatColumnFn(column);
+  }
+  return column;
 };
 
 const buildRemoveNodesFromBeforeOrAfer = (beforeOrAfter) => {
@@ -40,34 +48,50 @@ const buildRemoveNodesFromBeforeOrAfer = (beforeOrAfter) => {
     if (beforeOrAfter === 'after') return orderDirection === 'asc' ? '<' : '>';
     return orderDirection === 'asc' ? '>' : '<';
   };
-  return (nodesAccessor, cursorOfInitialNode, { orderColumn, ascOrDesc }) => {
+  return (nodesAccessor, cursorOfInitialNode, {
+    orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
+  }) => {
     const data = getDataFromCursor(cursorOfInitialNode);
     const [id, columnValue] = data;
     const initialValue = nodesAccessor.clone();
-
     const result = operateOverScalarOrArray(initialValue, orderColumn, (orderBy, index, prev) => {
       let orderDirection;
-      let value;
-      const values = columnValue.split(ARRAY_DATA_SEPARATION_TOKEN);
+      const values = columnValue;
+      let currValue;
       if (index !== null) {
         orderDirection = ascOrDesc[index].toLowerCase();
-        value = values[index];
+        currValue = values[index];
       } else {
         orderDirection = ascOrDesc.toLowerCase();
-        value = columnValue;
+        currValue = values[0];
       }
       const comparator = getComparator(orderDirection);
 
       if (index > 0) {
-        const nested = prev.orWhere(function () {
-          this.where(orderColumn[index], `${comparator}=`, values[index])
-            .andWhere(orderColumn[index - 1], '=', values[index - 1]);
-        });
+        const operation = (isAggregateFn && isAggregateFn(orderColumn[index - 1])) ? 'orHavingRaw' : 'orWhereRaw';
+        const nested = prev[operation](
+          `(${formatColumnIfAvailable(orderColumn[index - 1], formatColumnFn)} = ? and ${formatColumnIfAvailable(orderBy, formatColumnFn)} ${comparator} ?)`,
+          [values[index - 1], values[index]],
+        );
+
         return nested;
       }
 
-      return prev.where(orderBy, index === null ? `${comparator}=` : comparator, value);
-    }, prev => prev.whereNot({ id }));
+      const operation = (isAggregateFn && isAggregateFn(orderBy)) ? 'havingRaw' : 'whereRaw';
+
+      return prev[operation](`(${formatColumnIfAvailable(orderBy, formatColumnFn)} ${comparator} ?)`, [currValue]);
+    }, (prev, isArray) => {
+      // Result is sorted by id as the last column
+      const comparator = getComparator(ascOrDesc);
+      const lastOrderColumn = isArray ? orderColumn.pop() : orderColumn;
+      const lastValue = columnValue.pop();
+      const operation = (isAggregateFn && isAggregateFn(lastOrderColumn)) ? 'orHavingRaw' : 'orWhereRaw';
+      const nested = prev[operation](
+        `(${formatColumnIfAvailable(lastOrderColumn, formatColumnFn)} = ? and ${formatColumnIfAvailable('id', formatColumnFn)} ${comparator} ?)`,
+        [lastValue, id],
+      );
+      return nested;
+    });
     return result;
   };
 };
@@ -126,7 +150,7 @@ const convertNodesToEdges = (nodes, _, {
 }) => nodes.map((node) => {
   const dataValue = operateOverScalarOrArray('', orderColumn, (orderBy, index, prev) => {
     const nodeValue = node[orderBy];
-    const result = `${prev}${index ? ARRAY_DATA_SEPARATION_TOKEN : ''}${nodeValue}`;
+    const result = `${prev}${index ? ARRAY_DATA_SEPARATION_TOKEN : ''}${JSON.stringify(nodeValue)}`;
     return result;
   });
 

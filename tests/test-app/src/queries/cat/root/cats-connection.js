@@ -9,7 +9,7 @@ export default async (_, args) => {
   const orderBy = args.orderBy || args.orderByMultiple;
   const orderDirection = args.orderDirection || args.orderDirectionMultiple;
 
-  const baseQuery = Cat.query();
+  const baseQuery = Cat.query().sum('id as idsum').select('cats.*').groupBy('id');
 
   const result = await paginate(
     baseQuery,
@@ -17,6 +17,10 @@ export default async (_, args) => {
       ...args,
       orderBy,
       orderDirection,
+    },
+    {
+      isAggregateFn: column => column === 'idsum',
+      formatColumnFn: column => (column === 'idsum' ? 'sum(id)' : column),
     },
   );
   return result;
