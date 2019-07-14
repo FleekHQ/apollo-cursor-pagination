@@ -1,4 +1,5 @@
-import { knexPaginator as paginate } from 'apollo-cursor-pagination';
+import { knexPaginator } from 'apollo-cursor-pagination';
+import offsetPaginator from 'apollo-cursor-pagination/dist/orm-connectors/knex/offset-based-pagination';
 import Cat from '../../../models/Cat';
 
 export default async (_, args) => {
@@ -10,7 +11,7 @@ export default async (_, args) => {
   const orderDirection = args.orderDirection || args.orderDirectionMultiple;
 
   const baseQuery = Cat.query().sum('id as idsum').select('cats.*').groupBy('id');
-
+  const paginate = args.useOffsetPagination ? offsetPaginator : knexPaginator;
   const result = await paginate(
     baseQuery,
     {

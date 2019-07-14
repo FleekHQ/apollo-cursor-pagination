@@ -31,6 +31,7 @@ const Cat = `
       orderDirection: OrderDirection
       orderDirectionMultiple: [OrderDirection]
       orderByMultiple: [String!]
+      useOffsetPagination: Boolean
     ): CatsConnection!
   }
 `;
