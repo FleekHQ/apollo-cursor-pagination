@@ -18,12 +18,12 @@ const applyCursorsToNodes = (
   },
 ) => {
   let nodesAccessor = allNodesAccessor;
-  if (after !== undefined) {
+  if (after) {
     nodesAccessor = removeNodesBeforeAndIncluding(nodesAccessor, after, {
       orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
     });
   }
-  if (before !== undefined) {
+  if (before) {
     nodesAccessor = removeNodesAfterAndIncluding(nodesAccessor, before, {
       orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
     });
@@ -43,7 +43,7 @@ const nodesToReturn = async (
   {
     removeNodesBeforeAndIncluding,
     removeNodesAfterAndIncluding,
-    getNodesLength,
+    hasLengthGreaterThan,
     removeNodesFromEnd,
     removeNodesFromBeginning,
     orderNodesBy,
@@ -65,86 +65,24 @@ const nodesToReturn = async (
       orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
     },
   );
-
-  const length = await getNodesLength(nodesAccessor);
-  if (first !== undefined) {
-    if (first < 0) throw new Error('`first` argument must not be less than 0');
-    if (length > first) nodesAccessor = removeNodesFromEnd(nodesAccessor, first, length);
-  }
-  if (last !== undefined) {
-    if (last < 0) throw new Error('`last` argument must not be less than 0');
-    if (length > last) nodesAccessor = removeNodesFromBeginning(nodesAccessor, last, length);
-  }
-
-  return nodesAccessor;
-};
-
-/**
- * Returns true if the requested slice has a previous page. False otherwise.
- * @param {Object} allNodesAccessor an accessor to the nodes. Will depend on the concrete implementor.
- * @param {Object} operatorFunctions must contain `getNodesLength`, `removeNodesFromEnd`, `removeNodesFromBeginning`,`removeNodesBeforeAndIncluding` and `removeNodesAfterAndIncluding` functions.
- * @param {Object} graphqlParams must contain `first`, `last`, `before` and `after` query params.
- * @param {Object} orderArgs must contain orderColumn and ascOrDesc. Include only if the implementor requires these params.
- */
-const hasPreviousPage = async (allNodesAccessor,
-  {
-    removeNodesBeforeAndIncluding,
-    removeNodesAfterAndIncluding,
-    getNodesLength,
-  }, {
-    before, after, first, last,
-  }, {
-    orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
-  }) => {
-  if (last) {
-    const nodes = applyCursorsToNodes(allNodesAccessor, { before, after }, {
-      removeNodesBeforeAndIncluding, removeNodesAfterAndIncluding,
-    }, {
-      orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
-    });
-    const length = await getNodesLength(nodes);
-    if (length > last) return true;
-  }
-  // TODO: determine previous page if `after` is set.
-  return false;
-};
-
-/**
- * Returns true if the requested slice has a next page. False otherwise.
- * @param {Object} allNodesAccessor an accessor to the nodes. Will depend on the concrete implementor.
- * @param {Object} operatorFunctions must contain `getNodesLength`, `removeNodesFromEnd`, `removeNodesFromBeginning`,`removeNodesBeforeAndIncluding` and `removeNodesAfterAndIncluding` functions.
- * @param {Object} graphqlParams must contain `first`, `last`, `before` and `after` query params.
- * @param {Object} orderArgs must contain orderColumn and ascOrDesc. Include only if the implementor requires these params.
- */
-const hasNextPage = async (allNodesAccessor,
-  {
-    removeNodesBeforeAndIncluding,
-    removeNodesAfterAndIncluding,
-    getNodesLength,
-  }, {
-    before, after, first, last,
-  }, {
-    orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
-  }) => {
+  let hasNextPage = !!before;
+  let hasPreviousPage = !!after;
   if (first) {
-    const nodes = applyCursorsToNodes(allNodesAccessor, { before, after }, {
-      removeNodesBeforeAndIncluding, removeNodesAfterAndIncluding,
-    }, {
-      orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
-    });
-    const length = await getNodesLength(nodes);
-    if (length > first) return true;
+    if (first < 0) throw new Error('`first` argument must not be less than 0');
+    hasNextPage = await hasLengthGreaterThan(nodesAccessor, first);
+    if (hasNextPage) {
+      nodesAccessor = removeNodesFromEnd(nodesAccessor, first, { orderColumn, ascOrDesc });
+    }
   }
-  // TODO: determine previous page if `before` is set.
-  return false;
-};
-
-const totalCount = async (allNodesAccessor,
-  {
-    getNodesLength,
-  }) => {
-  const length = await getNodesLength(allNodesAccessor);
-  return length;
+  if (last) {
+    if (last < 0) throw new Error('`last` argument must not be less than 0');
+    hasPreviousPage = await hasLengthGreaterThan(nodesAccessor, last);
+    if (hasPreviousPage) {
+      nodesAccessor = removeNodesFromBeginning(nodesAccessor, last, { orderColumn, ascOrDesc });
+    }
+  }
+  const nodes = await nodesAccessor;
+  return { nodes, hasNextPage, hasPreviousPage };
 };
 
 /**
@@ -155,6 +93,7 @@ const apolloCursorPaginationBuilder = ({
   removeNodesBeforeAndIncluding,
   removeNodesAfterAndIncluding,
   getNodesLength,
+  hasLengthGreaterThan,
   removeNodesFromEnd,
   removeNodesFromBeginning,
   convertNodesToEdges,
@@ -166,7 +105,7 @@ const apolloCursorPaginationBuilder = ({
   },
   opts = {},
 ) => {
-  const { isAggregateFn, formatColumnFn } = opts;
+  const { isAggregateFn, formatColumnFn, skipTotalCount = false } = opts;
   let {
     orderColumn, ascOrDesc,
   } = opts;
@@ -177,12 +116,13 @@ const apolloCursorPaginationBuilder = ({
     ascOrDesc = orderDirection;
   }
 
-  const nodes = await nodesToReturn(
+  const { nodes, hasPreviousPage, hasNextPage } = await nodesToReturn(
     allNodesAccessor,
     {
       removeNodesBeforeAndIncluding,
       removeNodesAfterAndIncluding,
       getNodesLength,
+      hasLengthGreaterThan,
       removeNodesFromEnd,
       removeNodesFromBeginning,
       orderNodesBy,
@@ -192,6 +132,11 @@ const apolloCursorPaginationBuilder = ({
       orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
     },
   );
+
+  const totalCount = !skipTotalCount && await getNodesLength(allNodesAccessor, {
+    getNodesLength,
+  });
+
   const edges = convertNodesToEdges(nodes, {
     before, after, first, last,
   }, {
@@ -199,24 +144,10 @@ const apolloCursorPaginationBuilder = ({
   });
   return {
     pageInfo: {
-      hasPreviousPage: await hasPreviousPage(allNodesAccessor, {
-        removeNodesBeforeAndIncluding, removeNodesAfterAndIncluding, getNodesLength,
-      }, {
-        before, after, first, last,
-      }, {
-        orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
-      }),
-      hasNextPage: await hasNextPage(allNodesAccessor, {
-        removeNodesBeforeAndIncluding, removeNodesAfterAndIncluding, getNodesLength,
-      }, {
-        before, after, first, last,
-      }, {
-        orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
-      }),
+      hasPreviousPage,
+      hasNextPage,
     },
-    totalCount: await totalCount(allNodesAccessor, {
-      getNodesLength,
-    }),
+    totalCount,
     edges,
   };
 };
