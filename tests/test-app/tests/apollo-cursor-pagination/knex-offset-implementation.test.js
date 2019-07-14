@@ -334,5 +334,28 @@ describe('getCatsByOwner root query', () => {
       expect(response.body.data.catsConnection.totalCount).toBeDefined();
       expect(response.body.data.catsConnection.totalCount).toEqual(3);
     });
+
+    it('brings the start and end cursor', async () => {
+      const query = `
+        {
+          catsConnection(useOffsetPagination: true, first: 2, after: "${cursor}") {
+            edges {
+              cursor
+            }
+            pageInfo {
+              startCursor
+              endCursor
+            }
+          }
+        }
+      `;
+      const response = await graphqlQuery(app, query);
+
+      expect(response.body.errors).not.toBeDefined();
+      const startCursor = response.body.data.catsConnection.edges[0].cursor;
+      const endCursor = response.body.data.catsConnection.edges[1].cursor;
+      expect(response.body.data.catsConnection.pageInfo.startCursor).toEqual(startCursor);
+      expect(response.body.data.catsConnection.pageInfo.endCursor).toEqual(endCursor);
+    });
   });
 });
