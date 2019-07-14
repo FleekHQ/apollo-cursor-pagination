@@ -43,7 +43,7 @@ const formatColumnIfAvailable = (column, formatColumnFn) => {
   return column;
 };
 
-const buildRemoveNodesFromBeforeOrAfer = (beforeOrAfter) => {
+const buildRemoveNodesFromBeforeOrAfter = (beforeOrAfter) => {
   const getComparator = (orderDirection) => {
     if (beforeOrAfter === 'after') return orderDirection === 'asc' ? '<' : '>';
     return orderDirection === 'asc' ? '>' : '<';
@@ -96,39 +96,6 @@ const buildRemoveNodesFromBeforeOrAfer = (beforeOrAfter) => {
   };
 };
 
-// Used when `after` is included in the query
-// It must slice the result set from the element after the one with the given cursor until the end.
-// e.g. let [A, B, C, D] be the `resultSet`
-// removeNodesBeforeAndIncluding(resultSet, 'B') should return [C, D]
-const removeNodesBeforeAndIncluding = buildRemoveNodesFromBeforeOrAfer('before');
-
-// Used when `first` is included in the query
-// It must remove nodes from the result set starting from the end until it's of size `length`.
-// e.g. let [A, B, C, D] be the `resultSet`
-// removeNodesFromEnd(resultSet, 3) should return [A, B, C]
-const removeNodesFromEnd = (nodesAccessor, length) => nodesAccessor.clone().limit(length);
-
-// Used when `before` is included in the query
-// It must remove all nodes after and including the one with cursor `cursorOfInitialNode`
-// e.g. let [A, B, C, D] be the `resultSet`
-// removeNodesAfterAndIncluding(resultSet, 'C') should return [A, B]
-const removeNodesAfterAndIncluding = buildRemoveNodesFromBeforeOrAfer('after');
-
-// Used when `last` is included in the query
-// It must remove nodes from the result set starting from the beginning until it's of size `length`.
-// e.g. let [A, B, C, D] be the `resultSet`
-// removeNodesFromBeginning(resultSet, 3) should return [B, C, D]
-const removeNodesFromBeginning = (nodesAccessor, length, currLength) => {
-  const result = nodesAccessor.clone().offset(currLength - length);
-  return result;
-};
-
-
-const getNodesLength = async (nodesAccessor) => {
-  const result = await nodesAccessor.clone();
-  return result.length;
-};
-
 const orderNodesBy = (nodesAccessor, orderColumn = 'id', ascOrDesc = 'asc') => {
   const initialValue = nodesAccessor.clone();
   const result = operateOverScalarOrArray(initialValue, orderColumn, (orderBy, index, prev) => {
@@ -138,6 +105,51 @@ const orderNodesBy = (nodesAccessor, orderColumn = 'id', ascOrDesc = 'asc') => {
     return prev.orderBy(orderBy, ascOrDesc);
   }, (prev, isArray) => (isArray ? prev.orderBy('id', ascOrDesc[0]) : prev.orderBy('id', ascOrDesc)));
   return result;
+};
+
+// Used when `after` is included in the query
+// It must slice the result set from the element after the one with the given cursor until the end.
+// e.g. let [A, B, C, D] be the `resultSet`
+// removeNodesBeforeAndIncluding(resultSet, 'B') should return [C, D]
+const removeNodesBeforeAndIncluding = buildRemoveNodesFromBeforeOrAfter('before');
+
+// Used when `first` is included in the query
+// It must remove nodes from the result set starting from the end until it's of size `length`.
+// e.g. let [A, B, C, D] be the `resultSet`
+// removeNodesFromEnd(resultSet, 3) should return [A, B, C]
+const removeNodesFromEnd = (nodesAccessor, first) => nodesAccessor.clone().limit(first);
+
+// Used when `before` is included in the query
+// It must remove all nodes after and including the one with cursor `cursorOfInitialNode`
+// e.g. let [A, B, C, D] be the `resultSet`
+// removeNodesAfterAndIncluding(resultSet, 'C') should return [A, B]
+const removeNodesAfterAndIncluding = buildRemoveNodesFromBeforeOrAfter('after');
+
+// Used when `last` is included in the query
+// It must remove nodes from the result set starting from the beginning until it's of size `length`.
+// e.g. let [A, B, C, D] be the `resultSet`
+// removeNodesFromBeginning(resultSet, 3) should return [B, C, D]
+const removeNodesFromBeginning = (nodesAccessor, last, { orderColumn, ascOrDesc }) => {
+  const invertedOrderArray = operateOverScalarOrArray([], ascOrDesc,
+    (orderDirection, index, prev) => prev.concat(orderDirection === 'asc' ? 'desc' : 'asc'));
+
+  const order = invertedOrderArray.length === 1 ? invertedOrderArray[0] : invertedOrderArray;
+
+  const subquery = orderNodesBy(nodesAccessor.clone().clearOrder(), orderColumn, order).limit(last);
+  const result = nodesAccessor.clone().from(subquery.as('last_subquery')).clearSelect().clearWhere();
+  return result;
+};
+
+
+const getNodesLength = async (nodesAccessor) => {
+  const counts = await nodesAccessor.clone().count('*');
+  const result = counts.reduce((prev, curr) => curr['count(*)'] + prev, 0);
+  return result;
+};
+
+const hasLengthGreaterThan = async (nodesAccessor, amount) => {
+  const result = await nodesAccessor.clone().limit(amount + 1);
+  return result.length === amount + 1;
 };
 
 // Receives a list of nodes and returns it in edge form:
@@ -165,6 +177,7 @@ const paginate = apolloCursorPaginationBuilder(
     removeNodesBeforeAndIncluding,
     removeNodesAfterAndIncluding,
     getNodesLength,
+    hasLengthGreaterThan,
     removeNodesFromEnd,
     removeNodesFromBeginning,
     convertNodesToEdges,
