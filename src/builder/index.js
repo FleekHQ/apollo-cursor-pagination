@@ -55,7 +55,7 @@ const nodesToReturn = async (
   },
 ) => {
   const orderedNodesAccessor = orderNodesBy(allNodesAccessor, orderColumn, ascOrDesc);
-  let nodesAccessor = applyCursorsToNodes(
+  const nodesAccessor = applyCursorsToNodes(
     orderedNodesAccessor,
     { before, after },
     {
@@ -67,21 +67,23 @@ const nodesToReturn = async (
   );
   let hasNextPage = !!before;
   let hasPreviousPage = !!after;
+  let nodes = [];
   if (first) {
     if (first < 0) throw new Error('`first` argument must not be less than 0');
-    hasNextPage = await hasLengthGreaterThan(nodesAccessor, first);
-    if (hasNextPage) {
-      nodesAccessor = removeNodesFromEnd(nodesAccessor, first, { orderColumn, ascOrDesc });
+    nodes = await removeNodesFromEnd(nodesAccessor, first + 1, { orderColumn, ascOrDesc });
+    if (nodes.length > first) {
+      hasNextPage = true;
+      nodes = nodes.slice(0, first);
     }
   }
   if (last) {
     if (last < 0) throw new Error('`last` argument must not be less than 0');
-    hasPreviousPage = await hasLengthGreaterThan(nodesAccessor, last);
-    if (hasPreviousPage) {
-      nodesAccessor = removeNodesFromBeginning(nodesAccessor, last, { orderColumn, ascOrDesc });
+    nodes = await removeNodesFromBeginning(nodesAccessor, last + 1, { orderColumn, ascOrDesc });
+    if (nodes.length > last) {
+      hasPreviousPage = true;
+      nodes = nodes.slice(1);
     }
   }
-  const nodes = await nodesAccessor;
   return { nodes, hasNextPage, hasPreviousPage };
 };
 
