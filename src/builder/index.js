@@ -145,8 +145,8 @@ const apolloCursorPaginationBuilder = ({
     orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
   });
 
-  const startCursor = edges[0].cursor;
-  const endCursor = edges[edges.length - 1].cursor;
+  const startCursor = edges[0] && edges[0].cursor;
+  const endCursor = edges[edges.length - 1] && edges[edges.length - 1].cursor;
 
   return {
     pageInfo: {
