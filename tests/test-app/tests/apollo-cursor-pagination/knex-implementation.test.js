@@ -581,12 +581,18 @@ describe('getCatsByOwner root query', () => {
       cursor = response.body.data.catsConnection.edges[0].cursor;
     });
 
-    it('brings the correct amount for a segmented query', async () => {
+    it('paginates segmentating by null values', async () => {
+      const [unnamedCat] = await catFactory.model.query().limit(1);
+      await catFactory.model.query().where({ id: unnamedCat.id }).patch({ lastName: null });
       const query = `
         {
-          catsConnection(first: 2, after: "${cursor}") {
+          catsConnection(first: 1, orderBy: "lastName", orderDirection: asc) {
             edges {
               cursor
+              node {
+                id
+                lastName
+              }
             }
             totalCount
           }
@@ -595,8 +601,81 @@ describe('getCatsByOwner root query', () => {
       const response = await graphqlQuery(app, query);
 
       expect(response.body.errors).not.toBeDefined();
-      expect(response.body.data.catsConnection.totalCount).toBeDefined();
-      expect(response.body.data.catsConnection.totalCount).toEqual(3);
+      // In SQLITE nulls come first.
+      expect(response.body.data.catsConnection.edges[0].node.lastName).toEqual(null);
+
+      const { cursor } = response.body.data.catsConnection.edges[0];
+
+      const query2 = `
+        {
+          catsConnection(
+            first: 2, orderBy: "lastName", orderDirection: asc, after: "${cursor}"
+          ) {
+            edges {
+              cursor
+              node {
+                id
+                lastName
+              }
+            }
+          }
+        }
+      `;
+      const response2 = await graphqlQuery(app, query2);
+
+      expect(response2.body.errors).not.toBeDefined();
+      expect(response2.body.data.catsConnection.edges).toHaveLength(2);
+      expect(response2.body.data.catsConnection.edges[0].node.lastName).not.toEqual(null);
+      expect(response2.body.data.catsConnection.edges[1].node.lastName).not.toEqual(null);
+    });
+
+    it('paginates segmentating in the middle of null values', async () => {
+      const [unnamedCat1, unnamedCat2] = await catFactory.model.query().limit(2);
+      await catFactory.model.query().where({ id: unnamedCat1.id }).patch({ lastName: null });
+      await catFactory.model.query().where({ id: unnamedCat2.id }).patch({ lastName: null });
+      const query = `
+        {
+          catsConnection(first: 1, orderBy: "lastName", orderDirection: asc) {
+            edges {
+              cursor
+              node {
+                id
+                lastName
+              }
+            }
+            totalCount
+          }
+        }
+      `;
+      const response = await graphqlQuery(app, query);
+
+      expect(response.body.errors).not.toEqual(null);
+      // In SQLITE nulls come first.
+      expect(response.body.data.catsConnection.edges[0].node.lastName).toEqual(null);
+
+      const { cursor } = response.body.data.catsConnection.edges[0];
+
+      const query2 = `
+        {
+          catsConnection(
+            first: 2, orderBy: "lastName", orderDirection: asc, after: "${cursor}"
+          ) {
+            edges {
+              cursor
+              node {
+                id
+                lastName
+              }
+            }
+          }
+        }
+      `;
+      const response2 = await graphqlQuery(app, query2);
+
+      expect(response2.body.errors).not.toEqual(null);
+      expect(response2.body.data.catsConnection.edges).toHaveLength(2);
+      expect(response2.body.data.catsConnection.edges[0].node.lastName).toEqual(null);
+      expect(response2.body.data.catsConnection.edges[1].node.lastName).not.toEqual(null);
     });
   });
 });

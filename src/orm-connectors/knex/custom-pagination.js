@@ -43,6 +43,21 @@ const formatColumnIfAvailable = (column, formatColumnFn) => {
   return column;
 };
 
+const getOpossiteComparator = (comparator) => {
+  switch (comparator) {
+    case '<':
+      return '>=';
+    case '>':
+      return '<=';
+    case '<=':
+      return '>';
+    case '>=':
+      return '<';
+    default:
+      return '<>';
+  }
+};
+
 const buildRemoveNodesFromBeforeOrAfter = (beforeOrAfter) => {
   const getComparator = (orderDirection) => {
     if (beforeOrAfter === 'after') return orderDirection === 'asc' ? '<' : '>';
@@ -53,8 +68,9 @@ const buildRemoveNodesFromBeforeOrAfter = (beforeOrAfter) => {
   }) => {
     const data = getDataFromCursor(cursorOfInitialNode);
     const [id, columnValue] = data;
+
     const initialValue = nodesAccessor.clone();
-    const result = operateOverScalarOrArray(initialValue, orderColumn, (orderBy, index, prev) => {
+    const executeFilterQuery = query => operateOverScalarOrArray(query, orderColumn, (orderBy, index, prev) => {
       let orderDirection;
       const values = columnValue;
       let currValue;
@@ -67,6 +83,7 @@ const buildRemoveNodesFromBeforeOrAfter = (beforeOrAfter) => {
       }
       const comparator = getComparator(orderDirection);
 
+
       if (index > 0) {
         const operation = (isAggregateFn && isAggregateFn(orderColumn[index - 1])) ? 'orHavingRaw' : 'orWhereRaw';
         const nested = prev[operation](
@@ -77,21 +94,40 @@ const buildRemoveNodesFromBeforeOrAfter = (beforeOrAfter) => {
         return nested;
       }
 
-      const operation = (isAggregateFn && isAggregateFn(orderBy)) ? 'havingRaw' : 'whereRaw';
+      if (currValue === null || currValue === undefined) {
+        return prev;
+      }
 
+      const operation = (isAggregateFn && isAggregateFn(orderBy)) ? 'havingRaw' : 'whereRaw';
       return prev[operation](`(${formatColumnIfAvailable(orderBy, formatColumnFn)} ${comparator} ?)`, [currValue]);
     }, (prev, isArray) => {
       // Result is sorted by id as the last column
       const comparator = getComparator(ascOrDesc);
       const lastOrderColumn = isArray ? orderColumn.pop() : orderColumn;
       const lastValue = columnValue.pop();
+
+      // If value is null, we are forced to filter by id instead
       const operation = (isAggregateFn && isAggregateFn(lastOrderColumn)) ? 'orHavingRaw' : 'orWhereRaw';
-      const nested = prev[operation](
+      if (lastValue === null || lastValue === undefined) {
+        return prev[operation](
+          `(${formatColumnIfAvailable('id', formatColumnFn)} ${comparator} ?) or (${formatColumnIfAvailable(lastOrderColumn, formatColumnFn)} IS NOT NULL)`,
+          [id],
+        );
+      }
+
+      return prev[operation](
         `(${formatColumnIfAvailable(lastOrderColumn, formatColumnFn)} = ? and ${formatColumnIfAvailable('id', formatColumnFn)} ${comparator} ?)`,
         [lastValue, id],
       );
-      return nested;
     });
+    let result;
+
+    if ((isAggregateFn && Array.isArray(orderColumn) && isAggregateFn(orderColumn[0]))
+    || (isAggregateFn && !Array.isArray(orderColumn) && isAggregateFn(orderColumn))) {
+      result = executeFilterQuery(initialValue);
+    } else {
+      result = initialValue.andWhere(query => executeFilterQuery(query));
+    }
     return result;
   };
 };
