@@ -43,21 +43,6 @@ const formatColumnIfAvailable = (column, formatColumnFn) => {
   return column;
 };
 
-const getOpossiteComparator = (comparator) => {
-  switch (comparator) {
-    case '<':
-      return '>=';
-    case '>':
-      return '<=';
-    case '<=':
-      return '>';
-    case '>=':
-      return '<';
-    default:
-      return '<>';
-  }
-};
-
 const buildRemoveNodesFromBeforeOrAfter = (beforeOrAfter) => {
   const getComparator = (orderDirection) => {
     if (beforeOrAfter === 'after') return orderDirection === 'asc' ? '<' : '>';
@@ -226,3 +211,11 @@ const paginate = apolloCursorPaginationBuilder(
 );
 
 module.exports = paginate;
+module.exports.getDataFromCursor = getDataFromCursor;
+module.exports.removeNodesBeforeAndIncluding = removeNodesBeforeAndIncluding;
+module.exports.removeNodesFromEnd = removeNodesFromEnd;
+module.exports.removeNodesAfterAndIncluding = removeNodesAfterAndIncluding;
+module.exports.removeNodesFromBeginning = removeNodesFromBeginning;
+module.exports.getNodesLength = getNodesLength;
+module.exports.hasLengthGreaterThan = hasLengthGreaterThan;
+module.exports.convertNodesToEdges = convertNodesToEdges;
