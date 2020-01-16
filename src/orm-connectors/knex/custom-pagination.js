@@ -117,13 +117,13 @@ const buildRemoveNodesFromBeforeOrAfter = (beforeOrAfter) => {
   };
 };
 
-const orderNodesBy = (nodesAccessor, orderColumn = 'id', ascOrDesc = 'asc') => {
+const orderNodesBy = (nodesAccessor, { orderColumn = 'id', ascOrDesc = 'asc', formatColumnFn }) => {
   const initialValue = nodesAccessor.clone();
   const result = operateOverScalarOrArray(initialValue, orderColumn, (orderBy, index, prev) => {
     if (index !== null) {
-      return prev.orderBy(orderBy, ascOrDesc[index]);
+      return prev.orderBy(formatColumnIfAvailable(orderBy, formatColumnFn), ascOrDesc[index]);
     }
-    return prev.orderBy(orderBy, ascOrDesc);
+    return prev.orderBy(formatColumnIfAvailable(orderBy, formatColumnFn), ascOrDesc);
   }, (prev, isArray) => (isArray ? prev.orderBy('id', ascOrDesc[0]) : prev.orderBy('id', ascOrDesc)));
   return result;
 };
