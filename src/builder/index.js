@@ -114,7 +114,7 @@ const apolloCursorPaginationBuilder = ({
   if (orderColumn) {
     console.warn('"orderColumn" and "ascOrDesc" are being deprecated in favor of "orderBy" and "orderDirection" respectively');
   } else {
-    orderColumn = orderBy;
+    orderColumn = formatColumnFn ? formatColumnFn(orderBy) : orderBy;
     ascOrDesc = orderDirection;
   }
 
