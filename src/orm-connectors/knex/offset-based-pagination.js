@@ -55,7 +55,7 @@ const getNodesLength = async (nodesAccessor) => {
   return result.length;
 };
 
-const orderNodesBy = (nodesAccessor, orderColumn = 'id', ascOrDesc = 'asc') => {
+const orderNodesBy = (nodesAccessor, { orderColumn = 'id', ascOrDesc = 'asc' }) => {
   const result = nodesAccessor.clone().orderBy(orderColumn, ascOrDesc).orderBy('id', ascOrDesc);
   return result;
 };
