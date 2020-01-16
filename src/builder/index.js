@@ -120,7 +120,7 @@ const apolloCursorPaginationBuilder = ({
     ascOrDesc = orderDirection;
   }
 
-  if (formatColumnFn && formatColumnFn(orderColumn) !== orderColumn) {
+  if (formatColumnFn && formatColumnFn(orderColumn) === orderColumn) {
     console.warn(`orderBy ${orderColumn} should not equal its formatted counterpart: ${formatColumnFn(orderColumn)}.`);
     console.warn('This may cause issues with cursors being generated properly.');
   }
