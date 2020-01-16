@@ -66,6 +66,11 @@ const result = await paginate(
 );
 ```
 
+**Important note:** Make sure you pass the un-formatted version as your `orderBy` argument. It helps
+to create a wrapper around the `paginate()` function that enforces this. For example, if the formatted
+database column name is "created_at" and the column name on the model is "createdAt," you would pass
+"createdAt" as the `orderBy` argument.
+
 <details>
   <summary>An example with Objection columnNameMappers</summary>
 
