@@ -46,6 +46,52 @@ export default async (_, args) => {
 };
 ```
 
+#### Formatting Column Names
+
+If you are using something like [Objection](https://vincit.github.io/objection.js/) and have
+mapped the column names to something like snakeCase instead of camel_case, you'll want to use
+the `formatColumnFn` option to make sure you're ordering by and building cursors from the correct
+column name:
+
+```javascript
+const result = await paginate(
+  baseQuery,
+  { first, last, before, after, orderBy, orderDirection },
+  {
+    formatColumnFn: (column) => {
+      // Logic to transform your column name goes here...
+      return column
+    }
+  }
+);
+```
+
+**Important note:** Make sure you pass the un-formatted version as your `orderBy` argument. It helps
+to create a wrapper around the `paginate()` function that enforces this. For example, if the formatted
+database column name is "created_at" and the column name on the model is "createdAt," you would pass
+"createdAt" as the `orderBy` argument.
+
+<details>
+  <summary>An example with Objection columnNameMappers</summary>
+
+  ```javascript
+  const result = await paginate(
+    baseQuery,
+    { first, last, before, after, orderBy, orderDirection },
+    {
+      formatColumnFn: (column) => {
+        if (Model.columnNameMappers && Model.columnNameMappers.format) {
+          const result = Model.columnNameMappers.format({ [column]: true })
+          return Object.keys(result)[0]
+        } else {
+          return column
+        }
+      }
+    }
+  );
+  ```
+</details>
+
 ### Creating your own connector
 
 Only Knex.js is implemented for now. If you want to connect to a different ORM, you must make your own connector.

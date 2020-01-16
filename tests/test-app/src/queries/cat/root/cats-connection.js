@@ -21,7 +21,7 @@ export default async (_, args) => {
     },
     {
       isAggregateFn: column => column === 'idsum',
-      formatColumnFn: column => (column === 'idsum' ? 'sum(id)' : column),
+      formatColumnFn: column => (column === 'idsum' ? Cat.knex().raw('sum(id)') : column),
     },
   );
   return result;
