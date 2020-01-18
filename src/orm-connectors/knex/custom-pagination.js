@@ -124,7 +124,9 @@ const orderNodesBy = (nodesAccessor, { orderColumn = 'id', ascOrDesc = 'asc', fo
       return prev.orderBy(formatColumnIfAvailable(orderBy, formatColumnFn), ascOrDesc[index]);
     }
     return prev.orderBy(formatColumnIfAvailable(orderBy, formatColumnFn), ascOrDesc);
-  }, (prev, isArray) => (isArray ? prev.orderBy('id', ascOrDesc[0]) : prev.orderBy('id', ascOrDesc)));
+  }, (prev, isArray) => (isArray
+    ? prev.orderBy(formatColumnIfAvailable('id', formatColumnFn), ascOrDesc[0])
+    : prev.orderBy(formatColumnIfAvailable('id', formatColumnFn), ascOrDesc)));
   return result;
 };
 
