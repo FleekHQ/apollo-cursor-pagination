@@ -22,6 +22,10 @@ export default async (_, args) => {
     {
       isAggregateFn: column => column === 'idsum',
       formatColumnFn: column => (column === 'idsum' ? Cat.knex().raw('sum(id)') : column),
+      modifyEdgeFn: edge => ({
+        ...edge,
+        custom: 'foo',
+      }),
     },
   );
   return result;

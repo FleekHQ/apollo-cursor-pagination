@@ -109,7 +109,9 @@ const apolloCursorPaginationBuilder = ({
   },
   opts = {},
 ) => {
-  const { isAggregateFn, formatColumnFn, skipTotalCount = false } = opts;
+  const {
+    isAggregateFn, formatColumnFn, skipTotalCount = false, modifyEdgeFn,
+  } = opts;
   let {
     orderColumn, ascOrDesc,
   } = opts;
@@ -146,11 +148,14 @@ const apolloCursorPaginationBuilder = ({
     getNodesLength,
   });
 
-  const edges = convertNodesToEdges(nodes, {
+  let edges = convertNodesToEdges(nodes, {
     before, after, first, last,
   }, {
     orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
   });
+  if (modifyEdgeFn) {
+    edges = edges.map(edge => modifyEdgeFn(edge));
+  }
 
   const startCursor = edges[0] && edges[0].cursor;
   const endCursor = edges[edges.length - 1] && edges[edges.length - 1].cursor;

@@ -14,6 +14,7 @@ const Cat = `
   type CatEdge {
     cursor: String!
     node: Cat!
+    custom: String
   }
 
   enum OrderDirection {

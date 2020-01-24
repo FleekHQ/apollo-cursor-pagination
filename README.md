@@ -92,6 +92,24 @@ database column name is "created_at" and the column name on the model is "create
   ```
 </details>
 
+#### Customizing Edges
+
+If you have additional metadata you would like to pass along with each edge, as is allowed by the Relay
+specification, you may do so using the `modifyEdgeFn` option:
+
+```javascript
+const result = await paginate(
+  baseQuery,
+  { first, last, before, after, orderBy, orderDirection },
+  {
+    modifyEdgeFn: (edge) => ({
+      ...edge,
+      custom: 'foo',
+    })
+  }
+);
+```
+
 ### Creating your own connector
 
 Only Knex.js is implemented for now. If you want to connect to a different ORM, you must make your own connector.
