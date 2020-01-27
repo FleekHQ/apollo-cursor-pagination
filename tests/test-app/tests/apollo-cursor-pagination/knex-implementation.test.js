@@ -678,4 +678,30 @@ describe('getCatsByOwner root query', () => {
       expect(response2.body.data.catsConnection.edges[1].node.lastName).not.toEqual(null);
     });
   });
+
+  describe('modifyEdgeFn', () => {
+    it('modifies edges per the callback', async () => {
+      const query = `
+        {
+          catsConnection(first: 2) {
+            edges {
+              cursor
+              node {
+                id
+                name
+              }
+              custom
+            }
+          }
+        }
+      `;
+      const response = await graphqlQuery(app, query);
+      expect(response.body.errors).not.toBeDefined();
+      expect(response.body.data.catsConnection.edges).toHaveLength(2);
+      expect(response.body.data.catsConnection.edges.map(edge => edge.node.name))
+        .toEqual([cat1.name, cat2.name]);
+      expect(response.body.data.catsConnection.edges.map(edge => edge.custom))
+        .toEqual(['foo', 'foo']);
+    });
+  });
 });
