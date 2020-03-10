@@ -221,3 +221,4 @@ module.exports.removeNodesFromBeginning = removeNodesFromBeginning;
 module.exports.getNodesLength = getNodesLength;
 module.exports.hasLengthGreaterThan = hasLengthGreaterThan;
 module.exports.convertNodesToEdges = convertNodesToEdges;
+module.exports.orderNodesBy = orderNodesBy;
