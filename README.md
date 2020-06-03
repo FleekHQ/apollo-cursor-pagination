@@ -138,9 +138,17 @@ When submitting a pull request, please include tests for the code you are submit
 
 4- Send the PR. When accepted, the maintainer will publish a new version to npm using the new `dist` folder.
 
+#### Note to maintainer
+
+Do not publish using yarn, as it doesn't publishes all dependencies. Use `npm publish`.
+
 ### Running the test suite
 
-1- `cd tests/test-app`
+1- `yarn link`
+
+2- `cd tests/test-app`
+
+3- `yarn link apollo-cursor-pagination`
 
 2- `yarn install`
 

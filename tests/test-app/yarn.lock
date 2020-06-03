@@ -921,7 +921,7 @@ apollo-cache-control@^0.2.5:
     graphql-extensions "^0.2.1"
 
 "apollo-cursor-pagination@file:../..":
-  version "0.5.1"
+  version "0.7.4"
   dependencies:
     base-64 "^0.1.0"
 
