@@ -36,9 +36,9 @@ const getDataFromCursor = (cursor) => {
   return [data[0], values];
 };
 
-const formatColumnIfAvailable = (column, formatColumnFn) => {
+const formatColumnIfAvailable = (column, formatColumnFn, isRaw = true) => {
   if (formatColumnFn) {
-    return formatColumnFn(column);
+    return formatColumnFn(column, isRaw);
   }
   return column;
 };
@@ -121,12 +121,12 @@ const orderNodesBy = (nodesAccessor, { orderColumn = 'id', ascOrDesc = 'asc', fo
   const initialValue = nodesAccessor.clone();
   const result = operateOverScalarOrArray(initialValue, orderColumn, (orderBy, index, prev) => {
     if (index !== null) {
-      return prev.orderBy(formatColumnIfAvailable(orderBy, formatColumnFn), ascOrDesc[index]);
+      return prev.orderBy(formatColumnIfAvailable(orderBy, formatColumnFn, false), ascOrDesc[index]);
     }
-    return prev.orderBy(formatColumnIfAvailable(orderBy, formatColumnFn), ascOrDesc);
+    return prev.orderBy(formatColumnIfAvailable(orderBy, formatColumnFn, false), ascOrDesc);
   }, (prev, isArray) => (isArray
-    ? prev.orderBy(formatColumnIfAvailable('id', formatColumnFn), ascOrDesc[0])
-    : prev.orderBy(formatColumnIfAvailable('id', formatColumnFn), ascOrDesc)));
+    ? prev.orderBy(formatColumnIfAvailable('id', formatColumnFn, false), ascOrDesc[0])
+    : prev.orderBy(formatColumnIfAvailable('id', formatColumnFn, false), ascOrDesc)));
   return result;
 };
 
