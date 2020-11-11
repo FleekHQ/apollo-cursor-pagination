@@ -1,11 +1,10 @@
-const base64 = require('base-64');
 const apolloCursorPaginationBuilder = require('../../builder');
 
 const SEPARATION_TOKEN = '_*_';
 const ARRAY_DATA_SEPARATION_TOKEN = '_%_';
 
-const encode = str => base64.encode(str);
-const decode = str => base64.decode(str);
+const encode = str => Buffer.from(str).toString('base64');
+const decode = str => Buffer.from(str, 'base64').toString();
 
 const operateOverScalarOrArray = (initialValue, scalarOrArray, operation, operateResult) => {
   let result = initialValue;
