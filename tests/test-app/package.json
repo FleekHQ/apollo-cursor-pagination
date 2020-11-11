@@ -15,8 +15,8 @@
     "graphql-binding": "^2.2.5",
     "graphql-tools": "^4.0.0",
     "knex": "^0.19.5",
-    "lodash": "^4.17.11",
-    "node-fetch": "^2.2.0",
+    "lodash": "^4.17.19",
+    "node-fetch": "^2.6.1",
     "objection": "^1.3.0",
     "sqlite3": "^4.0.2"
   },
