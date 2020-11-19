@@ -71,8 +71,8 @@ const buildRemoveNodesFromBeforeOrAfter = (beforeOrAfter) => {
       if (index > 0) {
         const operation = (isAggregateFn && isAggregateFn(orderColumn[index - 1])) ? 'orHavingRaw' : 'orWhereRaw';
         const nested = prev[operation](
-          `(${formatColumnIfAvailable(orderColumn[index - 1], formatColumnFn)} = ? and ${formatColumnIfAvailable(orderBy, formatColumnFn)} ${comparator} ?)`,
-          [values[index - 1], values[index]],
+          `(?? = ? and ?? ${comparator} ?)`,
+          [formatColumnIfAvailable(orderColumn[index - 1], formatColumnFn), values[index - 1], formatColumnIfAvailable(orderBy, formatColumnFn), values[index]],
         );
 
         return nested;
@@ -83,7 +83,7 @@ const buildRemoveNodesFromBeforeOrAfter = (beforeOrAfter) => {
       }
 
       const operation = (isAggregateFn && isAggregateFn(orderBy)) ? 'havingRaw' : 'whereRaw';
-      return prev[operation](`(${formatColumnIfAvailable(orderBy, formatColumnFn)} ${comparator} ?)`, [currValue]);
+      return prev[operation](`(?? ${comparator} ?)`, [formatColumnIfAvailable(orderBy, formatColumnFn), currValue]);
     }, (prev, isArray) => {
       // Result is sorted by id as the last column
       const comparator = getComparator(ascOrDesc);
@@ -94,14 +94,14 @@ const buildRemoveNodesFromBeforeOrAfter = (beforeOrAfter) => {
       const operation = (isAggregateFn && isAggregateFn(lastOrderColumn)) ? 'orHavingRaw' : 'orWhereRaw';
       if (lastValue === null || lastValue === undefined) {
         return prev[operation](
-          `(${formatColumnIfAvailable('id', formatColumnFn)} ${comparator} ?) or (${formatColumnIfAvailable(lastOrderColumn, formatColumnFn)} IS NOT NULL)`,
-          [id],
+          `(?? ${comparator} ?) or (?? IS NOT NULL)`,
+          [formatColumnIfAvailable('id', formatColumnFn), id, formatColumnIfAvailable(lastOrderColumn, formatColumnFn)],
         );
       }
 
       return prev[operation](
-        `(${formatColumnIfAvailable(lastOrderColumn, formatColumnFn)} = ? and ${formatColumnIfAvailable('id', formatColumnFn)} ${comparator} ?)`,
-        [lastValue, id],
+        `(?? = ? and ?? ${comparator} ?)`,
+        [formatColumnIfAvailable(lastOrderColumn, formatColumnFn), lastValue, formatColumnIfAvailable('id', formatColumnFn), id],
       );
     });
     let result;
