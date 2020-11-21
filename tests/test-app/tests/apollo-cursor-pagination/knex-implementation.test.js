@@ -7,6 +7,7 @@ describe('getCatsByOwner root query', () => {
   let cat1;
   let cat2;
   let cat3;
+  let cat4;
   // TODO @dmerrill6: extract this into a helper fn.
   beforeAll((done) => {
     app = start(done);
@@ -25,6 +26,9 @@ describe('getCatsByOwner root query', () => {
     cat3 = await catFactory.model
       .query()
       .insert({ ...catFactory.mockFn(), id: 3 });
+    cat4 = await catFactory.model
+      .query()
+      .insert({ ...catFactory.mockFn(), id: 4 });
   });
 
   describe('forward pagination', () => {
@@ -91,7 +95,7 @@ describe('getCatsByOwner root query', () => {
     it('brings page info when there are no remaining pages correctly', async () => {
       const query = `
         {
-          catsConnection(first: 3) {
+          catsConnection(first: 4) {
             pageInfo {
               hasNextPage
             }
@@ -125,7 +129,7 @@ describe('getCatsByOwner root query', () => {
       expect(response.body.errors).not.toBeDefined();
       expect(response.body.data.catsConnection.edges).toHaveLength(2);
       expect(response.body.data.catsConnection.edges.map(edge => edge.node.name))
-        .toEqual([cat2.name, cat3.name]);
+        .toEqual([cat3.name, cat4.name]);
       cursor = response.body.data.catsConnection.edges[1].cursor;
     });
 
@@ -147,7 +151,7 @@ describe('getCatsByOwner root query', () => {
       expect(response.body.errors).not.toBeDefined();
       expect(response.body.data.catsConnection.edges).toHaveLength(2);
       expect(response.body.data.catsConnection.edges.map(edge => edge.node.name))
-        .toEqual([cat1.name, cat2.name]);
+        .toEqual([cat2.name, cat3.name]);
     });
 
     it('brings page info correctly', async () => {
@@ -168,7 +172,7 @@ describe('getCatsByOwner root query', () => {
     it('brings page info when there are no remaining pages correctly', async () => {
       const query = `
         {
-          catsConnection(last: 3) {
+          catsConnection(last: 4) {
             pageInfo {
               hasPreviousPage
             }
@@ -249,7 +253,7 @@ describe('getCatsByOwner root query', () => {
 
       expect(response2.body.errors).not.toBeDefined();
       expect(response2.body.data.catsConnection.edges.map(e => e.node.id)).toEqual(
-        [cat1, cat2, cat3].map(c => c.id).sort().reverse().map(id => id.toString()),
+        [cat2, cat3, cat4].map(c => c.id).sort().reverse().map(id => id.toString()),
       );
     });
 
@@ -271,7 +275,7 @@ describe('getCatsByOwner root query', () => {
       const response = await graphqlQuery(app, query);
 
       expect(response.body.errors).not.toBeDefined();
-      expect(response.body.data.catsConnection.totalCount).toEqual(3);
+      expect(response.body.data.catsConnection.totalCount).toEqual(4);
       expect(response.body.data.catsConnection.edges.map(e => e.node.id)).toEqual(
         [cat1, cat2].map(c => c.id).map(id => id.toString()),
       );
@@ -294,7 +298,7 @@ describe('getCatsByOwner root query', () => {
       const response2 = await graphqlQuery(app, query2);
 
       expect(response2.body.errors).not.toBeDefined();
-      expect(response.body.data.catsConnection.totalCount).toEqual(3);
+      expect(response.body.data.catsConnection.totalCount).toEqual(4);
       expect(response2.body.data.catsConnection.edges.map(e => e.node.id)).toEqual(
         [cat3].map(c => c.id.toString()),
       );
@@ -318,7 +322,7 @@ describe('getCatsByOwner root query', () => {
 
       expect(response.body.errors).not.toBeDefined();
       expect(response.body.data.catsConnection.edges.map(e => e.node.id)).toEqual(
-        [cat3, cat2].map(c => c.id).map(id => id.toString()),
+        [cat4, cat3].map(c => c.id).map(id => id.toString()),
       );
 
       cursor = response.body.data.catsConnection.edges[1].cursor;
@@ -339,7 +343,7 @@ describe('getCatsByOwner root query', () => {
 
       expect(response2.body.errors).not.toBeDefined();
       expect(response2.body.data.catsConnection.edges.map(e => e.node.id)).toEqual(
-        [cat1].map(c => c.id.toString()),
+        [cat2].map(c => c.id.toString()),
       );
     });
 
@@ -577,7 +581,7 @@ describe('getCatsByOwner root query', () => {
 
       expect(response.body.errors).not.toBeDefined();
       expect(response.body.data.catsConnection.totalCount).toBeDefined();
-      expect(response.body.data.catsConnection.totalCount).toEqual(3);
+      expect(response.body.data.catsConnection.totalCount).toEqual(4);
       cursor = response.body.data.catsConnection.edges[0].cursor;
     });
 
