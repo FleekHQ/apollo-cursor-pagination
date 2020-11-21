@@ -157,7 +157,7 @@ const removeNodesFromBeginning = (nodesAccessor, last, { orderColumn, ascOrDesc 
 
   const order = invertedOrderArray.length === 1 ? invertedOrderArray[0] : invertedOrderArray;
 
-  const subquery = orderNodesBy(nodesAccessor.clone().clearOrder(), orderColumn, order).limit(last);
+  const subquery = orderNodesBy(nodesAccessor.clone().clearOrder(), { orderColumn, ascOrDesc: order }).limit(last);
   const result = nodesAccessor.clone().from(subquery.as('last_subquery')).clearSelect().clearWhere();
   return result;
 };
