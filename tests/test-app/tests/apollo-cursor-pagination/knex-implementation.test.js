@@ -129,7 +129,7 @@ describe('getCatsByOwner root query', () => {
       expect(response.body.errors).not.toBeDefined();
       expect(response.body.data.catsConnection.edges).toHaveLength(2);
       expect(response.body.data.catsConnection.edges.map(edge => edge.node.name))
-        .toEqual([cat2.name, cat3.name]);
+        .toEqual([cat3.name, cat4.name]);
       cursor = response.body.data.catsConnection.edges[1].cursor;
     });
 
@@ -151,7 +151,7 @@ describe('getCatsByOwner root query', () => {
       expect(response.body.errors).not.toBeDefined();
       expect(response.body.data.catsConnection.edges).toHaveLength(2);
       expect(response.body.data.catsConnection.edges.map(edge => edge.node.name))
-        .toEqual([cat1.name, cat2.name]);
+        .toEqual([cat2.name, cat3.name]);
     });
 
     it('brings page info correctly', async () => {
