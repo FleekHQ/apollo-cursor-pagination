@@ -1021,10 +1021,8 @@ apollo-cache-control@^0.11.0:
     apollo-server-env "^2.4.4"
     apollo-server-plugin-base "^0.9.0"
 
-apollo-cursor-pagination@0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/apollo-cursor-pagination/-/apollo-cursor-pagination-0.9.0.tgz#0c0cca53f04c53233963a254268e529c2546880a"
-  integrity sha512-hFXzddV57zMnCqG9hvOvF0FL/ceSQQ+pS1efPs6dfUQY3jKvXPNU52kebC5kcg0l7WMPuuLpCk/7/szlxKwvWw==
+"apollo-cursor-pagination@file:../..":
+  version "0.9.1"
 
 apollo-datasource@^0.7.1:
   version "0.7.1"
@@ -3507,9 +3505,9 @@ inherits@2.0.3:
   integrity sha1-Yzwsg+PaQqUC9SRmAiSA9CCCYd4=
 
 ini@^1.3.4, ini@~1.3.0:
-  version "1.3.5"
-  resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.5.tgz#eee25f56db1c9ec6085e0c22778083f596abf927"
-  integrity sha512-RZY5huIKCMRWDUqZlEi72f/lmXKMvuszcMBduliQ3nnWbx9X/ZBQO7DijMEYS9EhHBb2qacRUMtC7svLwe0lcw==
+  version "1.3.7"
+  resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.7.tgz#a09363e1911972ea16d7a8851005d84cf09a9a84"
+  integrity sha512-iKpRpXP+CrP2jyrxvg1kMUpXDyRUFDWurxbnVT1vQPx+Wz9uCYsMIqYuSBLV+PAaZG/d7kRLKRFc9oDMsH+mFQ==
 
 inquirer@^6.1.0:
   version "6.2.0"
