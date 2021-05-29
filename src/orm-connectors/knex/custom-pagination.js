@@ -48,7 +48,7 @@ const buildRemoveNodesFromBeforeOrAfter = (beforeOrAfter) => {
     return orderDirection === 'asc' ? '>' : '<';
   };
   return (nodesAccessor, cursorOfInitialNode, {
-    orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
+    orderColumn, ascOrDesc, isAggregateFn, formatColumnFn, primaryKey
   }) => {
     const data = getDataFromCursor(cursorOfInitialNode);
     const [id, columnValue] = data;
@@ -85,23 +85,23 @@ const buildRemoveNodesFromBeforeOrAfter = (beforeOrAfter) => {
       const operation = (isAggregateFn && isAggregateFn(orderBy)) ? 'havingRaw' : 'whereRaw';
       return prev[operation](`(?? ${comparator} ?)`, [formatColumnIfAvailable(orderBy, formatColumnFn), currValue]);
     }, (prev, isArray) => {
-      // Result is sorted by id as the last column
+      // Result is sorted by primaryKey as the last column
       const comparator = getComparator(ascOrDesc);
       const lastOrderColumn = isArray ? orderColumn.pop() : orderColumn;
       const lastValue = columnValue.pop();
 
-      // If value is null, we are forced to filter by id instead
+      // If value is null, we are forced to filter by primaryKey instead
       const operation = (isAggregateFn && isAggregateFn(lastOrderColumn)) ? 'orHavingRaw' : 'orWhereRaw';
       if (lastValue === null || lastValue === undefined) {
         return prev[operation](
           `(?? ${comparator} ?) or (?? IS NOT NULL)`,
-          [formatColumnIfAvailable('id', formatColumnFn), id, formatColumnIfAvailable(lastOrderColumn, formatColumnFn)],
+          [formatColumnIfAvailable(primaryKey, formatColumnFn), id, formatColumnIfAvailable(lastOrderColumn, formatColumnFn)],
         );
       }
 
       return prev[operation](
         `(?? = ? and ?? ${comparator} ?)`,
-        [formatColumnIfAvailable(lastOrderColumn, formatColumnFn), lastValue, formatColumnIfAvailable('id', formatColumnFn), id],
+        [formatColumnIfAvailable(lastOrderColumn, formatColumnFn), lastValue, formatColumnIfAvailable(primaryKey, formatColumnFn), id],
       );
     });
     let result;
@@ -116,7 +116,7 @@ const buildRemoveNodesFromBeforeOrAfter = (beforeOrAfter) => {
   };
 };
 
-const orderNodesBy = (nodesAccessor, { orderColumn = 'id', ascOrDesc = 'asc', formatColumnFn }) => {
+const orderNodesBy = (nodesAccessor, { orderColumn = 'id', ascOrDesc = 'asc', formatColumnFn, primaryKey = 'id' }) => {
   const initialValue = nodesAccessor.clone();
   const result = operateOverScalarOrArray(initialValue, orderColumn, (orderBy, index, prev) => {
     if (index !== null) {
@@ -124,8 +124,8 @@ const orderNodesBy = (nodesAccessor, { orderColumn = 'id', ascOrDesc = 'asc', fo
     }
     return prev.orderBy(formatColumnIfAvailable(orderBy, formatColumnFn, false), ascOrDesc);
   }, (prev, isArray) => (isArray
-    ? prev.orderBy(formatColumnIfAvailable('id', formatColumnFn, false), ascOrDesc[0])
-    : prev.orderBy(formatColumnIfAvailable('id', formatColumnFn, false), ascOrDesc)));
+    ? prev.orderBy(formatColumnIfAvailable(primaryKey, formatColumnFn, false), ascOrDesc[0])
+    : prev.orderBy(formatColumnIfAvailable(primaryKey, formatColumnFn, false), ascOrDesc)));
   return result;
 };
 
@@ -185,6 +185,7 @@ const hasLengthGreaterThan = async (nodesAccessor, amount) => {
 // }
 const convertNodesToEdges = (nodes, _, {
   orderColumn,
+  primaryKey
 }) => nodes.map((node) => {
   const dataValue = operateOverScalarOrArray('', orderColumn, (orderBy, index, prev) => {
     const nodeValue = node[orderBy];
@@ -193,7 +194,7 @@ const convertNodesToEdges = (nodes, _, {
   });
 
   return {
-    cursor: cursorGenerator(node.id, dataValue),
+    cursor: cursorGenerator(node[primaryKey], dataValue),
     node,
   };
 });

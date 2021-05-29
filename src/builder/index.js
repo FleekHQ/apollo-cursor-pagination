@@ -14,18 +14,18 @@ const applyCursorsToNodes = (
     removeNodesBeforeAndIncluding,
     removeNodesAfterAndIncluding,
   }, {
-    orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
+    orderColumn, ascOrDesc, isAggregateFn, formatColumnFn, primaryKey
   },
 ) => {
   let nodesAccessor = allNodesAccessor;
   if (after) {
     nodesAccessor = removeNodesBeforeAndIncluding(nodesAccessor, after, {
-      orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
+      orderColumn, ascOrDesc, isAggregateFn, formatColumnFn, primaryKey
     });
   }
   if (before) {
     nodesAccessor = removeNodesAfterAndIncluding(nodesAccessor, before, {
-      orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
+      orderColumn, ascOrDesc, isAggregateFn, formatColumnFn, primaryKey
     });
   }
   return nodesAccessor;
@@ -51,11 +51,11 @@ const nodesToReturn = async (
   {
     before, after, first, last,
   }, {
-    orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
+    orderColumn, ascOrDesc, isAggregateFn, formatColumnFn, primaryKey
   },
 ) => {
   const orderedNodesAccessor = orderNodesBy(allNodesAccessor, {
-    orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
+    orderColumn, ascOrDesc, isAggregateFn, formatColumnFn, primaryKey
   });
   const nodesAccessor = applyCursorsToNodes(
     orderedNodesAccessor,
@@ -64,7 +64,7 @@ const nodesToReturn = async (
       removeNodesBeforeAndIncluding,
       removeNodesAfterAndIncluding,
     }, {
-      orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
+      orderColumn, ascOrDesc, isAggregateFn, formatColumnFn, primaryKey
     },
   );
   let hasNextPage = !!before;
@@ -105,7 +105,7 @@ const apolloCursorPaginationBuilder = ({
 }) => async (
   allNodesAccessor,
   {
-    before, after, first, last, orderBy = 'id', orderDirection = 'asc',
+    before, after, first, last, orderBy = 'id', orderDirection = 'asc', primaryKey = 'id'
   },
   opts = {},
 ) => {
@@ -140,7 +140,7 @@ const apolloCursorPaginationBuilder = ({
     }, {
       before, after, first, last,
     }, {
-      orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
+      orderColumn, ascOrDesc, isAggregateFn, formatColumnFn, primaryKey
     },
   );
 
@@ -151,7 +151,7 @@ const apolloCursorPaginationBuilder = ({
   let edges = convertNodesToEdges(nodes, {
     before, after, first, last,
   }, {
-    orderColumn, ascOrDesc, isAggregateFn, formatColumnFn,
+    orderColumn, ascOrDesc, isAggregateFn, formatColumnFn, primaryKey
   });
   if (modifyEdgeFn) {
     edges = edges.map(edge => modifyEdgeFn(edge));
