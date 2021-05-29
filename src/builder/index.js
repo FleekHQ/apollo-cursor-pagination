@@ -104,17 +104,19 @@ const apolloCursorPaginationBuilder = ({
   orderNodesBy,
 }) => async (
   allNodesAccessor,
-  {
-    before, after, first, last, orderBy = 'id', orderDirection = 'asc', primaryKey = 'id'
-  },
+  args = {},
   opts = {},
 ) => {
   const {
-    isAggregateFn, formatColumnFn, skipTotalCount = false, modifyEdgeFn,
+    isAggregateFn, formatColumnFn, skipTotalCount = false, modifyEdgeFn, primaryKey = 'id',
   } = opts;
   let {
     orderColumn, ascOrDesc,
   } = opts;
+  const {
+    before, after, first, last, orderDirection = 'asc', orderBy = primaryKey,
+  } = args;
+
   if (orderColumn) {
     console.warn('"orderColumn" and "ascOrDesc" are being deprecated in favor of "orderBy" and "orderDirection" respectively');
   } else {
