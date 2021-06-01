@@ -151,13 +151,13 @@ const removeNodesAfterAndIncluding = buildRemoveNodesFromBeforeOrAfter('after');
 // It must remove nodes from the result set starting from the beginning until it's of size `length`.
 // e.g. let [A, B, C, D] be the `resultSet`
 // removeNodesFromBeginning(resultSet, 3) should return [B, C, D]
-const removeNodesFromBeginning = (nodesAccessor, last, { orderColumn, ascOrDesc }) => {
+const removeNodesFromBeginning = (nodesAccessor, last, { orderColumn, ascOrDesc, primaryKey }) => {
   const invertedOrderArray = operateOverScalarOrArray([], ascOrDesc,
     (orderDirection, index, prev) => prev.concat(orderDirection === 'asc' ? 'desc' : 'asc'));
 
   const order = invertedOrderArray.length === 1 ? invertedOrderArray[0] : invertedOrderArray;
 
-  const subquery = orderNodesBy(nodesAccessor.clone().clearOrder(), { orderColumn, ascOrDesc: order }).limit(last);
+  const subquery = orderNodesBy(nodesAccessor.clone().clearOrder(), { orderColumn, ascOrDesc: order, primaryKey: primaryKey }).limit(last);
   const result = nodesAccessor.clone().from(subquery.as('last_subquery')).clearSelect().clearWhere();
   return result;
 };
