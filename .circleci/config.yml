@@ -1,0 +1,40 @@
+version: 2.1
+
+jobs:
+  publish:
+    docker:
+      - image: circleci/node:16
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - '95:3f:a9:02:0d:06:71:f9:5d:90:1e:a0:e5:e3:c3:25'
+      - attach_workspace:
+          at: /tmp/workspace
+      - restore_cache:
+          keys:
+            - node-v1-{{ checksum "package-lock.json" }}
+      - run:
+          name: Setup GitHub Token
+          command: echo "//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}" >> ~/.npmrc
+      - run: npm ci
+      - save_cache:
+          key: node-v1-{{ checksum "package-lock.json" }}
+          paths:
+            - ~/.npm
+      - run: npm run synth
+      - run: npx semantic-release
+      ## Let's update the package.json and then publish with a different name to npm registry.
+      - run: echo $(jq '.name = "@pocket-tools/apollo-cursor-pagination" | del(.publishConfig)' package.json) > package.json
+      - run:
+          name: Setup NPM Token
+          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
+      - run: '(test -f .version && npm publish --access=public) || echo .version does not exist, no release was made, skipping npm registry publish'
+
+workflows:
+  all:
+    jobs:
+      - publish:
+          context: pocket
+          name: Publish NPM package
+

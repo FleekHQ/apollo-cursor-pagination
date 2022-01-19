@@ -1,9 +1,13 @@
 {
-  "name": "apollo-cursor-pagination",
-  "version": "0.9.1",
-  "description": "Relay's Connection implementation for Apollo Server GraphQL library",
+  "name": "@pocket-tools/apollo-cursor-pagination",
+  "version": "1.0.0",
+  "description": "Relay's Connection implementation for Apollo Server GraphQL library with primary key support for cursor generation.",
+  "keywords": [
+    "apollo",
+    "pagination"
+  ],
   "main": "dist/index.js",
-  "repository": "https://github.com/Terminal-Systems/apollo-cursor-pagination",
+  "types": "dist/index.d.ts",
   "author": "Daniel Merrill <daniel@terminal.co>",
   "license": "MIT",
   "private": false,
@@ -22,5 +26,31 @@
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jest": "^21.25.0",
     "regenerator-runtime": "^0.12.1"
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "bugs": {
+    "url": "https://github.com/Pocket/apollo-cursor-pagination/issues"
+  },
+  "homepage": "https://github.com/Pocket/apollo-cursor-pagination#readme",
+  "publishConfig": {
+    "cache": "~/.npm",
+    "access": "public"
+  },
+  "release": {
+    "branches": [
+      "main"
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/npm",
+      "@semantic-release/github"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@https://github.com/Pocket/apollo-cursor-pagination.git"
   }
 }
