@@ -1,9 +1,6 @@
 # Apollo Cursor Pagination
 
 Implementation of Relay's Connection specs for Apollo Server. Allows your Apollo Server to do cursor-based pagination. It can connect to any ORM, but only the connection with Knex.js is implemented currently.
-Added primary key support.
-
-Forked from: [FleekHQ/apollo-cursor-pagination](https://github.com/FleekHQ/apollo-cursor-pagination)
 
 ## Installation
 
