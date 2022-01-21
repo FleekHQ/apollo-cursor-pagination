@@ -1,9 +1,12 @@
 {
-  "name": "apollo-cursor-pagination",
-  "version": "0.9.1",
-  "description": "Relay's Connection implementation for Apollo Server GraphQL library",
+  "name": "@pocket-tools/apollo-cursor-pagination",
+  "version": "1.0.0",
+  "description": "Relay's Connection implementation for Apollo Server GraphQL library with primary key support for cursor generation.",
+  "keywords": [
+    "apollo",
+    "pagination"
+  ],
   "main": "dist/index.js",
-  "repository": "https://github.com/Terminal-Systems/apollo-cursor-pagination",
   "author": "Daniel Merrill <daniel@terminal.co>",
   "license": "MIT",
   "private": false,
@@ -15,12 +18,50 @@
     "@babel/core": "^7.1.2",
     "@babel/node": "^7.0.0",
     "@babel/preset-env": "^7.1.0",
+    "@semantic-release/commit-analyzer": "^9.0.2",
+    "@semantic-release/exec": "^6.0.3",
+    "@semantic-release/github": "^8.0.2",
+    "@semantic-release/npm": "^8.0.3",
+    "@semantic-release/release-notes-generator": "^10.0.3",
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^23.6.0",
     "eslint": "^5.6.1",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jest": "^21.25.0",
-    "regenerator-runtime": "^0.12.1"
+    "regenerator-runtime": "^0.12.1",
+    "semantic-release": "^19.0.2"
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "bugs": {
+    "url": "https://github.com/Pocket/apollo-cursor-pagination/issues"
+  },
+  "homepage": "https://github.com/Pocket/apollo-cursor-pagination#readme",
+  "publishConfig": {
+    "cache": "~/.npm",
+    "access": "public"
+  },
+  "release": {
+    "branches": [
+      "main"
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/npm",
+      "@semantic-release/github",
+      [
+        "@semantic-release/exec",
+        {
+          "prepareCmd": "echo ${nextRelease.version} > .version"
+        }
+      ]
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@https://github.com/Pocket/apollo-cursor-pagination.git"
   }
 }
