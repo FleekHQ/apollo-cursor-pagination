@@ -1,6 +1,6 @@
 {
   "name": "@pocket-tools/apollo-cursor-pagination",
-  "version": "0.0.0-development",
+  "version": "1.0.1",
   "description": "Relay's Connection implementation for Apollo Server GraphQL library with primary key support for cursor generation.",
   "keywords": [
     "apollo",
