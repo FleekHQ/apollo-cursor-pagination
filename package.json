@@ -62,6 +62,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@https://github.com/Pocket/apollo-cursor-pagination.git"
+    "url": "git@github.com:Pocket/apollo-cursor-pagination.git"
   }
 }
