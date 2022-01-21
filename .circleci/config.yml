@@ -23,8 +23,6 @@ jobs:
           paths:
             - ~/.npm
       - run: npx semantic-release
-      ## Let's update the package.json and then publish with a different name to npm registry.
-      - run: echo $(jq '.name = "@pocket-tools/apollo-cursor-pagination" | del(.publishConfig)' package.json) > package.json
       - run:
           name: Setup NPM Token
           command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
