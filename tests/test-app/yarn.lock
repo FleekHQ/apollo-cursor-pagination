@@ -1021,10 +1021,8 @@ apollo-cache-control@^0.11.0:
     apollo-server-env "^2.4.4"
     apollo-server-plugin-base "^0.9.0"
 
-apollo-cursor-pagination@0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/apollo-cursor-pagination/-/apollo-cursor-pagination-0.9.0.tgz#0c0cca53f04c53233963a254268e529c2546880a"
-  integrity sha512-hFXzddV57zMnCqG9hvOvF0FL/ceSQQ+pS1efPs6dfUQY3jKvXPNU52kebC5kcg0l7WMPuuLpCk/7/szlxKwvWw==
+"apollo-cursor-pagination@file:../..":
+  version "0.9.1"
 
 apollo-datasource@^0.7.1:
   version "0.7.1"
@@ -6615,11 +6613,9 @@ unc-path-regex@^0.1.2:
   integrity sha1-5z3T17DXxe2G+6xrCufYxqadUPo=
 
 undefsafe@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/undefsafe/-/undefsafe-2.0.2.tgz#225f6b9e0337663e0d8e7cfd686fc2836ccace76"
-  integrity sha1-Il9rngM3Zj4Njnz9aG/Cg2zKznY=
-  dependencies:
-    debug "^2.2.0"
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/undefsafe/-/undefsafe-2.0.5.tgz#38733b9327bdcd226db889fb723a6efd162e6e2c"
+  integrity sha512-WxONCrssBM8TSPRqN5EmsjVrsv4A8X12J4ArBiiayv3DyyG3ZlIg6yysuuSYdZsVz3TKcTg2fd//Ujd4CHV1iA==
 
 unicode-canonical-property-names-ecmascript@^1.0.4:
   version "1.0.4"
